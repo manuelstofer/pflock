@@ -5,6 +5,27 @@
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
 <body>
+<div id="document">
+
+    <h1 x-bind=".user.name" contenteditable>Manuel</h1>
+    <input type="text" x-bind="value:.user.name" value="Manuel">
+    <input type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
+    <select x-bind="value:.user.selected">
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+    </select>
+    <textarea x-bind="value:.user.description">user description</textarea>
+
+    <p x-bind=".user.editable" contenteditable>Edit this</p>
+    <dl>
+        <dt>.user.name</dt><dd x-bind=".user.name"></dd>
+        <dt>.user.checked</dt><dd x-bind=".user.checked"></dd>
+        <dt>.user.selected</dt><dd x-bind=".user.selected"></dd>
+        <dt>.user.description</dt><dd x-bind=".user.description"></dd>
+        <dt>.user.editable</dt><dd x-bind=".user.editable"></dd>
+    </dl>
+
+</div>
 <div id="mocha"></div>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/chai/chai.js"></script>
