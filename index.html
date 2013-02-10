@@ -61,9 +61,7 @@
     });
 
     dataElement.addEventListener('keyup', function () {
-        var editedData = JSON.parse(this.value);
-        data.user = editedData.user;
-        bindings.toDocument();
+        bindings.toDocument(JSON.parse(this.value));
     });
 
     writeJSON();
