@@ -117,7 +117,7 @@ function pflock (element, data, options) {
 
         while (pathParts.length > 1) {
             part = pathParts.shift();
-            obj = obj[part] || (obj = obj[part] = {});
+            obj = obj[part] || (obj = obj[part] = {});
         }
         obj[pathParts.shift()] = value;
     }
