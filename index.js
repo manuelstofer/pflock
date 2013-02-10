@@ -5,41 +5,85 @@ var each    = require('each'),
 
 exports = module.exports = pflock;
 
-function pflock(element, data) {
+function pflock (element, data) {
     'use strict';
 
     element = element || document.body;
 
     var $ = getQueryEngine();
     setupEvents();
+    toDocument();
 
     return {
         toDocument: toDocument
     };
 
     function toDocument () {
-
+        var values = toPathValueHash(data);
+        each(values, function (value, path) {
+            updateDocument(path, value);
+        });
     }
 
     function fromDocument (event) {
         var target = event.target || event.srcElement,
             binding = getElementBinding(target),
-            value = readAttribute(target, binding.attribute);
-        writeToOther(binding, value);
+            value = readElement(target, binding.attribute);
+        updateDocument(binding.path, value, binding.element);
     }
 
     /**
-     * Get querySelectorAll with jQuery fallback, if available
+     * Reads the current value of an element
      *
-     * @return function
+     * @param el
+     * @param attribute
+     * @return {*}
      */
-    function getQueryEngine () {
-        if (element.querySelectorAll) {
-            return element.querySelectorAll.bind(element);
+    function readElement (el, attribute) {
+        if (attribute === 'value') {
+            return val(el);
         }
-        return function (selector) {
-            return window.$(element).find(selector).get();
-        };
+        if (attribute === '') {
+            return el.innerHTML;
+        }
+        return attr(el, attribute);
+    }
+
+    /**
+     * Writes a value to an element
+     *
+     * @param el
+     * @param value
+     */
+    function writeToElement(el, value) {
+        var binding = getElementBinding(el),
+            attribute = binding.attribute;
+
+        if (attribute === 'value') {
+            return val(el, value);
+        }
+        if (attribute === '') {
+            el.innerHTML = value;
+        }
+        attr(el, attribute, value);
+    }
+
+    /**
+     * Writes a read value of a binding to other
+     * elements with the same path
+     *
+     * @param binding
+     * @param value
+     */
+    function updateDocument (path, value, src) {
+        each($('[x-bind]'), function (el) {
+            if (el !== src) {
+                var currentBinding = getElementBinding(el);
+                if (path === currentBinding.path) {
+                    writeToElement(el, value);
+                }
+            }
+        });
     }
 
     /**
@@ -60,58 +104,23 @@ function pflock(element, data) {
         };
     }
 
-    /**
-     * Reads the current value of an element
-     *
-     * @param el
-     * @param attribute
-     * @return {*}
-     */
-    function readAttribute (el, attribute) {
-        if (attribute === 'value') {
-            return val(el);
-        }
-        if (attribute === '') {
-            return el.innerHTML;
-        }
-        return attr(el, attribute);
+    function isIterable (obj) {
+        return obj instanceof Array || obj === Object(obj);
     }
 
-    /**
-     * Writes a value to an element
-     *
-     * @param el
-     * @param value
-     */
-    function writeAttribute(el, value) {
-        var binding = getElementBinding(el),
-            attribute = binding.attribute;
-
-        if (attribute === 'value') {
-            return val(el, value);
-        }
-        if (attribute === '') {
-            el.innerHTML = value;
-        }
-        attr(el, attribute, value);
-    }
-
-    /**
-     * Writes a read value of a binding to other
-     * elements with the same path
-     *
-     * @param binding
-     * @param value
-     */
-    function writeToOther (binding, value) {
-        each($('[x-bind]'), function (el) {
-            if (el !== binding.element) {
-                var currentBinding = getElementBinding(el);
-                if (binding.path === currentBinding.path) {
-                    writeAttribute(el, value);
+    function toPathValueHash (data) {
+        var result = {};
+        function convert (obj, path) {
+            each(obj, function (item, key) {
+                if (isIterable(item)) {
+                    convert(item, path + '.' + key);
+                } else {
+                    result[path + '.' + key] = item;
                 }
-            }
-        });
+            });
+        }
+        convert(data, '');
+        return result;
     }
 
     /**
@@ -123,16 +132,6 @@ function pflock(element, data) {
             'selected',
             'input',
             'change'
-            /*'DOMSubtreeModified',
-             'DOMAttrModified',
-             'DOMAttributeNameChanged',
-             'DOMCharacterDataModified',
-             'DOMElementNameChanged',
-             'DOMNodeInserted',
-             'DOMNodeInsertedIntoDocument',
-             'DOMNodeRemoved',
-             'DOMNodeRemovedFromDocument',
-             'DOMSubtreeModified'*/
         ];
 
         each(events, function (eventName) {
@@ -141,5 +140,20 @@ function pflock(element, data) {
             });
         });
     }
-}
 
+    /**
+     * Get querySelectorAll with jQuery fallback, if available
+     *
+     * @return function
+     */
+    function getQueryEngine () {
+        if (element.querySelectorAll) {
+            return function (selector) {
+                return element.querySelectorAll(selector);
+            };
+        }
+        return function (selector) {
+            return window.$(element).find(selector).get();
+        };
+    }
+}

@@ -3,45 +3,65 @@
     <title> Tests </title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    <style>
+        .status,
+        .inputs {
+            width: 50%;
+            float: left;
+        }
+        .status dl dt{
+            width: 40%;
+            float: left;
+        }
+        #document {
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
 <div id="document">
 
-    <h1 x-bind=".user.name" contenteditable>Manuel</h1>
-    <input type="text" x-bind="value:.user.name" value="Manuel">
-    <input type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
-    <select x-bind="value:.user.selected">
-        <option value="1">Option 1</option>
-        <option value="2">Option 2</option>
-    </select>
-    <textarea x-bind="value:.user.description">user description</textarea>
+    <div class="inputs">
+        <h1 x-bind=".user.name" contenteditable>Manuel</h1>
+        <input type="text" x-bind="value:.user.name" value="Manuel">
+        <input type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
+        <select x-bind="value:.user.selected">
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+        </select>
+        <textarea x-bind="value:.user.text"></textarea>
+        <p x-bind=".user.editable" contenteditable>Edit this</p>
+    </div>
 
-    <p x-bind=".user.editable" contenteditable>Edit this</p>
-    <dl>
-        <dt>.user.name</dt><dd x-bind=".user.name"></dd>
-        <dt>.user.checked</dt><dd x-bind=".user.checked"></dd>
-        <dt>.user.selected</dt><dd x-bind=".user.selected"></dd>
-        <dt>.user.description</dt><dd x-bind=".user.description"></dd>
-        <dt>.user.editable</dt><dd x-bind=".user.editable"></dd>
-    </dl>
+
+    <div class="status">
+        <dl>
+            <dt>.user.name</dt><dd id="user-name" x-bind=".user.name"></dd>
+            <dt>.user.checked</dt><dd id="user-checked" x-bind=".user.checked"></dd>
+            <dt>.user.selected</dt><dd id="user-selected" x-bind=".user.selected"></dd>
+            <dt>.user.text</dt><dd id="user-text" x-bind=".user.text"></dd>
+            <dt>.user.editable</dt><dd id="user-editable" x-bind=".user.editable"></dd>
+        </dl>
+    </div>
+
 
 </div>
 <div id="mocha"></div>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/chai/chai.js"></script>
 <script>
     mocha.ui('bdd');
     mocha.reporter('html');
-    var expect = chai.expect;
-</script>
-<script src="../build/build.js"></script>
-<script>
     chai.should();
 </script>
+<script src="../build/build.js"></script>
 <script src="test.js"></script>
 <script>
-    if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-    else { mocha.run(); }
+    window.addEventListener('load', function () {
+        if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+        else { mocha.run(); }
+    });
 </script>
 </body>
 </html>
