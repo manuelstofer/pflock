@@ -2,7 +2,7 @@
 var pflock = require('pflock');
 
 
-    pflock($('#document').get(0), {});
+    pflock($('.document').get(0), {});
 
     describe('test setup', function () {
         it('should work', function () {
@@ -24,7 +24,7 @@ var pflock = require('pflock');
             };
 
         beforeEach(function () {
-            el = $('#document').clone();
+            el = $('.document').clone();
             el.appendTo('body');
             bind = pflock(el.get(0), data);
         });
@@ -34,11 +34,11 @@ var pflock = require('pflock');
         });
 
         var documentEqualsData = function () {
-            el.find('#user-name').text().should.equal(data.user.name);
-            el.find('#user-checked').text().should.equal(data.user.checked);
-            el.find('#user-selected').text().should.equal(data.user.selected);
-            el.find('#user-text').text().should.equal(data.user.text);
-            el.find('#user-editable').text().should.equal(data.user.editable);
+            el.find('.user-name').text().should.equal(data.user.name);
+            el.find('.user-checked').text().should.equal(data.user.checked);
+            el.find('.user-selected').text().should.equal(data.user.selected);
+            el.find('.user-text').text().should.equal(data.user.text);
+            el.find('.user-editable').text().should.equal(data.user.editable);
         };
 
         it('should write the data to the document', function () {
@@ -46,15 +46,15 @@ var pflock = require('pflock');
         });
 
         it('should update other bindings when the document changes', function () {
-            var userNameInput = el.find('#input-user-name');
-            var userNameStatus = el.find('#user-name');
+            var userNameInput = el.find('.input-user-name');
+            var userNameStatus = el.find('.user-name');
             userNameInput.val('changed');
             triggerEvent(userNameInput.get(0), 'input');
             String(userNameStatus.text()).should.equal('changed');
         });
 
         it('should update the data when the document changes', function () {
-            var userName = el.find('#input-user-name');
+            var userName = el.find('.input-user-name');
             userName.val('changed');
             triggerEvent(userName.get(0), 'input');
             documentEqualsData();
