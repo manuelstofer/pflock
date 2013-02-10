@@ -22,15 +22,16 @@
 <div id="document">
 
     <div class="inputs">
-        <h1 x-bind=".user.name" contenteditable>Manuel</h1>
-        <input type="text" x-bind="value:.user.name" value="Manuel">
-        <input type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
-        <select x-bind="value:.user.selected">
+
+        <h1 x-bind=".user.name" contenteditable></h1>
+        <input id="input-user-name" type="text" x-bind="value:.user.name" value="Manuel">
+        <input id="input-user-checked" type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
+        <select id="input-user-selected" x-bind="value:.user.selected">
             <option value="1">Option 1</option>
             <option value="2">Option 2</option>
         </select>
-        <textarea x-bind="value:.user.text"></textarea>
-        <p x-bind=".user.editable" contenteditable>Edit this</p>
+        <textarea id="input-user-text" x-bind="value:.user.text"></textarea>
+        <p id="input-user-editable" x-bind=".user.editable" contenteditable></p>
     </div>
 
 

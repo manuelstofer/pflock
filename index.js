@@ -1,4 +1,5 @@
 /*global module*/
+
 var each    = require('each'),
     attr    = require('attr'),
     val     = require('val');
@@ -20,16 +21,15 @@ function pflock (element, data) {
 
     function toDocument () {
         var values = toPathValueHash(data);
-        each(values, function (value, path) {
-            updateDocument(path, value);
-        });
+        each(values, updateDocument);
     }
 
     function fromDocument (event) {
-        var target = event.target || event.srcElement,
+        var target  = event.target || event.srcElement,
             binding = getElementBinding(target),
-            value = readElement(target, binding.attribute);
-        updateDocument(binding.path, value, binding.element);
+            value   = readElement(target, binding.attribute);
+        updateDocument(value, binding.path, binding.element);
+        toData(binding.path, value);
     }
 
     /**
@@ -69,13 +69,13 @@ function pflock (element, data) {
     }
 
     /**
-     * Writes a read value of a binding to other
-     * elements with the same path
+     * Writes a value to all elements bound to path
      *
-     * @param binding
      * @param value
+     * @param path
+     * @param src
      */
-    function updateDocument (path, value, src) {
+    function updateDocument (value, path, src) {
         each($('[x-bind]'), function (el) {
             if (el !== src) {
                 var currentBinding = getElementBinding(el);
@@ -84,6 +84,26 @@ function pflock (element, data) {
                 }
             }
         });
+    }
+
+    /**
+     * Writes a value back to the data object
+     * @param path
+     * @param value
+     */
+    function toData (path, value) {
+        var pathParts = path
+                .replace(/^\.+/, '')
+                .replace(/\.+$/, '')
+                .split(/\./),
+            obj = data,
+            part;
+
+        while (pathParts.length > 1) {
+            part = pathParts.shift();
+            obj = obj[part] || (obj = obj[part] = {});
+        }
+        obj[pathParts.shift()] = value;
     }
 
     /**
@@ -104,25 +124,6 @@ function pflock (element, data) {
         };
     }
 
-    function isIterable (obj) {
-        return obj instanceof Array || obj === Object(obj);
-    }
-
-    function toPathValueHash (data) {
-        var result = {};
-        function convert (obj, path) {
-            each(obj, function (item, key) {
-                if (isIterable(item)) {
-                    convert(item, path + '.' + key);
-                } else {
-                    result[path + '.' + key] = item;
-                }
-            });
-        }
-        convert(data, '');
-        return result;
-    }
-
     /**
      * Adds the required event listeners
      */
@@ -139,6 +140,36 @@ function pflock (element, data) {
                 fromDocument(event);
             });
         });
+    }
+
+    /**
+     * Checks if obj is iterable using each
+     *
+     * @param obj
+     * @return {Boolean}
+     */
+    function isIterable (obj) {
+        return obj instanceof Array || obj === Object(obj);
+    }
+
+    /**
+     *
+     * @param data
+     * @return {Object}
+     */
+    function toPathValueHash (data) {
+        var result = {};
+        function convert (obj, path) {
+            each(obj, function (item, key) {
+                if (isIterable(item)) {
+                    convert(item, path + '.' + key);
+                } else {
+                    result[path + '.' + key] = item;
+                }
+            });
+        }
+        convert(data, '');
+        return result;
     }
 
     /**
