@@ -2,26 +2,40 @@
 var pflock = require('pflock');
 
 
-    pflock($('.document').get(0), {});
+pflock($('.document').get(0), {});
 
-    describe('test setup', function () {
-        it('should work', function () {
-            true.should.not.equal(false);
-        });
+describe('test setup', function () {
+    it('should work', function () {
+        true.should.not.equal(false);
     });
+});
 
-    describe('pflock', function () {
+describe('pflock', function () {
 
-        var el, bindings,
-            data = {
-                user: {
-                    name:           'pflock',
+    var el, bindings,
+        data;
+
+    beforeEach(function () {
+        data = {
+            user: {
+                name:           'pflock',
                     checked:        'checked-value',
                     selected:       '2',
                     text:           'bla',
                     editable:       'edit here'
-                }
-            };
+            }
+        };
+    });
+
+    var documentEqualsData = function () {
+        el.find('.user-name').text().should.equal(data.user.name);
+        el.find('.user-checked').text().should.equal(data.user.checked);
+        el.find('.user-selected').text().should.equal(data.user.selected);
+        el.find('.user-text').text().should.equal(data.user.text);
+        el.find('.user-editable').text().should.equal(data.user.editable);
+    };
+
+    describe('with default settings', function () {
 
         beforeEach(function () {
             el = $('.document').clone();
@@ -33,13 +47,7 @@ var pflock = require('pflock');
             el.remove();
         });
 
-        var documentEqualsData = function () {
-            el.find('.user-name').text().should.equal(data.user.name);
-            el.find('.user-checked').text().should.equal(data.user.checked);
-            el.find('.user-selected').text().should.equal(data.user.selected);
-            el.find('.user-text').text().should.equal(data.user.text);
-            el.find('.user-editable').text().should.equal(data.user.editable);
-        };
+
 
         it('should write the data to the document', function () {
             documentEqualsData();
@@ -57,6 +65,7 @@ var pflock = require('pflock');
             var userName = el.find('.input-user-name');
             userName.val('changed');
             triggerEvent(userName.get(0), 'input');
+            data.user.name.should.equal('changed');
             documentEqualsData();
         });
 
@@ -70,7 +79,29 @@ var pflock = require('pflock');
             });
             triggerEvent(userName.get(0), 'input');
         });
+
     });
+
+    describe('without updating data', function () {
+
+        beforeEach(function () {
+            el = $('.document').clone();
+            el.appendTo('body');
+            bindings = pflock(el.get(0), data, {updateData: false});
+
+        });
+
+        it('should not update the data when the document changes', function () {
+            var userName = el.find('.input-user-name');
+            userName.val('not the same');
+            triggerEvent(userName.get(0), 'input');
+            data.user.name.should.not.equal('not the same');
+        });
+    });
+
+});
+
+
 
 function triggerEvent (element, event) {
     var evt = document.createEvent('Event');

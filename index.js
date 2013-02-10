@@ -3,14 +3,20 @@
 var each    = require('each'),
     attr    = require('attr'),
     val     = require('val'),
-    emitter = require('emitter');
+    emitter = require('emitter'),
+    extend  = require('extend');
 
 exports = module.exports = pflock;
 
-function pflock (element, data) {
+var defaults = {
+    updateData: true
+};
+
+function pflock (element, data, options) {
     'use strict';
 
     element = element || document.body;
+    options = extend(defaults, options);
 
     var $ = getQueryEngine();
 
@@ -35,7 +41,10 @@ function pflock (element, data) {
             binding = getElementBinding(target),
             value   = readElement(target, binding.attribute);
         updateDocument(value, binding.path, binding.element);
-        toData(binding.path, value);
+
+        if (options.updateData) {
+            toData(binding.path, value);
+        }
         api.emit('changed', binding.path, value);
     }
 
