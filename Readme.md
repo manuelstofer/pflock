@@ -1,8 +1,10 @@
 # Pflock
 
+![Build status](https://api.travis-ci.org/manuelstofer/pflock.png)
+
 ![Pfock](https://raw.github.com/manuelstofer/pflock/master/resources/pflock.jpg)
 
-Pflock is an [component](http://github.com/component/) for binding data to a input
+Pflock is a [component](http://github.com/component/) for binding data to a input
 fields, content editables etc.
 
 It works in both directions. When the data changes Pflock
