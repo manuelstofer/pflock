@@ -1,0 +1,78 @@
+
+
+h2 {
+    font-size: 1em;
+}
+h1,h2, h3{
+    margin: 0;
+    color: #333;
+}
+
+h1 {
+    font-family: 'Sarina', cursive;
+    font-size: 3em;
+    line-height: 1em;
+    margin-bottom: 0.1em;
+}
+h1 a{
+    color: #333;
+    font-weight: normal;
+    text-decoration: none;
+}
+h1 a:hover{
+    color: black;
+}
+body{
+    font-family: 'Roboto Condensed', cursive;
+    padding: 3em;
+    font-size: 1.5em;
+
+    background: rgb(255,255,255); /* Old browsers */
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(255,255,255,1) 0%, rgba(158,158,158,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(158,158,158,1))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(255,255,255,1) 0%,rgba(158,158,158,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover,  rgba(255,255,255,1) 0%,rgba(158,158,158,1) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover,  rgba(255,255,255,1) 0%,rgba(158,158,158,1) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center,  rgba(255,255,255,1) 0%,rgba(158,158,158,1) 100%); /* W3C */
+}
+img {
+    width: 100%;
+}
+textarea {
+    width: 100%;
+    height: 6em;
+
+
+    padding: 1em;
+}
+input, textarea {
+
+    border: 1px solid #666;
+    background-color: #EEE;
+    padding: 0.5em;
+
+    -webkit-box-shadow: 0px 0px 10px rgba(50, 50, 50, 1);
+    -moz-box-shadow:    0px 0px 10px rgba(50, 50, 50, 1);
+    box-shadow:         0px 0px 10px rgba(50, 50, 50, 1);
+}
+
+#title {
+    padding-bottom: 1em;
+    border-bottom: 2px solid #333;
+}
+
+#try{
+    margin-top: 2em;
+}
+
+#try div {
+    margin-bottom: 1em;
+}
+#try h3 {
+    font-size: 0.8em;
+    margin-bottom: 0.5em;
+}
+p {
+    font-family: 'Roboto Condensed', cursive;
+    font-size: 0.8em;
+}

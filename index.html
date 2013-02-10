@@ -1,0 +1,73 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <link href='http://fonts.googleapis.com/css?family=Sarina|Roboto+Condensed' rel='stylesheet' type='text/css'>
+    <link href="resources/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+    <div id="title">
+        <h1><a href="http://github.com/manuelstofer/pflock" x-bind=".user.name">Pflock</a></h1>
+        <h2>Two way bindings.</h2>
+    </div>
+
+
+<div id="try">
+
+    <div id="pflock">
+        <p x-bind=".user.description" contenteditable></p>
+        <input type="text" x-bind="value:.user.name" placeholder="Username">
+
+        <select type="text" x-bind="value:.user.selected">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+
+        <input type="checkbox" x-bind="value:.user.checked">
+
+    </div>
+
+
+    <div>
+        <h3>Data</h3>
+        <textarea id="data-edit"></textarea>
+    </div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="build/build.js"></script>
+<script>
+    var pflock = require('pflock'),
+        data = {
+            user: {
+                name:           'Pflock',
+                description:    'Please try to edit some input fields, this text or the JSON structure below',
+                checked:        'false',
+                selected:       '3'
+            }
+        },
+        dataElement = document.getElementById('data-edit'),
+        bindings = pflock(document.body, data);
+
+    function writeJSON () {
+        dataElement.value = JSON.stringify(data);
+    }
+
+    bindings.on('changed', function (path, value) {
+        writeJSON();
+    });
+
+    dataElement.addEventListener('keyup', function () {
+        var editedData = JSON.parse(this.value);
+        data.user = editedData.user;
+        bindings.toDocument();
+    });
+
+    writeJSON();
+
+</script>
+</body>
+</html>
