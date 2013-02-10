@@ -1,4 +1,4 @@
-/*global describe, it, $*/
+/*global describe, it, $, beforeEach*/
 var pflock = require('pflock');
 
 

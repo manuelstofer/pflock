@@ -152,9 +152,7 @@ function pflock (element, data, options) {
         ];
 
         each(events, function (eventName) {
-            element.addEventListener(eventName, function (event) {
-                fromDocument(event);
-            });
+            element.addEventListener(eventName, fromDocument);
         });
     }
 
