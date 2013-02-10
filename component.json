@@ -1,15 +1,16 @@
 {
-  "name": "pflock",
-  "description": "Two way binding",
-  "version": "0.0.1",
-  "keywords": [],
-  "dependencies": {
-    "manuelstofer/each": "*",
-    "manuelstofer/val": "*",
-    "matthewp/attr": "*"
-  },
-  "development": {},
-  "scripts": [
-    "index.js"
-  ]
+    "name": "pflock",
+    "description": "Two way binding",
+    "version": "0.0.1",
+    "keywords": [],
+    "dependencies": {
+        "manuelstofer/each": "*",
+        "manuelstofer/val": "*",
+        "matthewp/attr": "*",
+        "component/emitter": "*"
+    },
+    "development": {},
+    "scripts": [
+        "index.js"
+    ]
 }

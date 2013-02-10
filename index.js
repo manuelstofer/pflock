@@ -2,7 +2,8 @@
 
 var each    = require('each'),
     attr    = require('attr'),
-    val     = require('val');
+    val     = require('val'),
+    emitter = require('emitter');
 
 exports = module.exports = pflock;
 
@@ -12,12 +13,17 @@ function pflock (element, data) {
     element = element || document.body;
 
     var $ = getQueryEngine();
+
+    var api = {
+        toDocument: toDocument
+    };
+
+    emitter(api);
     setupEvents();
     toDocument();
 
-    return {
-        toDocument: toDocument
-    };
+    return api;
+
 
     function toDocument () {
         var values = toPathValueHash(data);
@@ -30,6 +36,7 @@ function pflock (element, data) {
             value   = readElement(target, binding.attribute);
         updateDocument(value, binding.path, binding.element);
         toData(binding.path, value);
+        api.emit('changed', binding.path, value);
     }
 
     /**

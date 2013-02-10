@@ -12,7 +12,7 @@ var pflock = require('pflock');
 
     describe('pflock', function () {
 
-        var el, bind,
+        var el, bindings,
             data = {
                 user: {
                     name:           'pflock',
@@ -26,7 +26,7 @@ var pflock = require('pflock');
         beforeEach(function () {
             el = $('.document').clone();
             el.appendTo('body');
-            bind = pflock(el.get(0), data);
+            bindings = pflock(el.get(0), data);
         });
 
         afterEach(function () {
@@ -58,6 +58,17 @@ var pflock = require('pflock');
             userName.val('changed');
             triggerEvent(userName.get(0), 'input');
             documentEqualsData();
+        });
+
+        it('should emit an event when values values change', function (done) {
+            var userName = el.find('.input-user-name');
+            userName.val('different');
+            bindings.on('changed', function (path, value) {
+                path.should.equal('.user.name');
+                value.should.equal('different');
+                done();
+            });
+            triggerEvent(userName.get(0), 'input');
         });
     });
 
