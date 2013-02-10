@@ -12,6 +12,14 @@ var defaults = {
     updateData: true
 };
 
+/**
+ * Bind data to the document
+ *
+ * @param element   Root element for bindings
+ * @param data      The data to be bound
+ * @param options
+ * @return {Object}
+ */
 function pflock (element, data, options) {
     'use strict';
 
@@ -30,12 +38,23 @@ function pflock (element, data, options) {
 
     return api;
 
-
-    function toDocument () {
-        var values = toPathValueHash(data);
-        each(values, updateDocument);
+    /**
+     * Write the data to the document
+     *
+     * @param {Object} [replace] replace the used data
+     */
+    function toDocument (replace) {
+        if (replace !== undefined) {
+            data = replace;
+        }
+        each(toPathValueHash(data), updateDocument);
     }
 
+    /**
+     * Handles changes in document
+     *
+     * @param event
+     */
     function fromDocument (event) {
         var target  = event.target || event.srcElement,
             binding = getElementBinding(target),
@@ -53,7 +72,7 @@ function pflock (element, data, options) {
      *
      * @param el
      * @param attribute
-     * @return {*}
+     * @return {String}
      */
     function readElement (el, attribute) {
         if (attribute === 'value') {
@@ -104,6 +123,7 @@ function pflock (element, data, options) {
 
     /**
      * Writes a value back to the data object
+     *
      * @param path
      * @param value
      */
@@ -167,6 +187,15 @@ function pflock (element, data, options) {
     }
 
     /**
+     * Converts the object data to a hash with path and value
+     *
+     * Example:
+     *  toPathValue({user: 'test', foo: {bla: 'word'}})
+     * Returns:
+     *  {
+     *      '.user': 'test',
+     *      '.foo.bla': 'word'
+     *  }
      *
      * @param data
      * @return {Object}

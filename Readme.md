@@ -3,11 +3,12 @@
 ![Pfock](https://raw.github.com/manuelstofer/pflock/master/resources/pflock.jpg)
 
 Pflock is an [component](http://github.com/component/) for binding data to a input
-fields, content editables etc. 
+fields, content editables etc.
 
-It works in both directions. When the data changes Pflock 
+It works in both directions. When the data changes Pflock
 can update the document and the other way around.
 
+[Demo](http://manuelstofer.github.com/pflock/)
 
 ## Installation
 
@@ -51,6 +52,6 @@ var data = {
 
 var bindings = pflock(document.body, data);
 bindings.on('change',  function (path, value) {
-  
+
 });
 ```
