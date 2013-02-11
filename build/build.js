@@ -253,7 +253,7 @@ module.exports = function(arr, fn){
   return ret;
 };
 });
-require.register("manuelstofer-val/index.js", function(exports, require, module){
+require.register("nickjackson-val/index.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -640,7 +640,7 @@ function pflock (element, data, options) {
      * @param event
      */
     function fromDocument (event) {
-        var target  = event.target || event.srcElement,
+        var target  = getEventTarget(event),
             binding = getElementBinding(target),
             value   = readElement(target, binding.attribute);
         updateDocument(value, binding.path, binding.element);
@@ -756,7 +756,11 @@ function pflock (element, data, options) {
         ];
 
         each(events, function (eventName) {
-            element.addEventListener(eventName, fromDocument);
+            element.addEventListener(eventName, function (event) {
+                if (getEventTarget(event).attributes['x-bind'] !== undefined) {
+                    fromDocument(event);
+                }
+            });
         });
     }
 
@@ -814,13 +818,23 @@ function pflock (element, data, options) {
             return window.$(element).find(selector).get();
         };
     }
+
+    /**
+     * Returns the target of an event
+     *
+     * @param event
+     * @return {*|Object}
+     */
+    function getEventTarget (event) {
+        return event.target || event.srcElement;
+    }
 }
 
 });
 require.alias("manuelstofer-each/index.js", "pflock/deps/each/index.js");
 
-require.alias("manuelstofer-val/index.js", "pflock/deps/val/index.js");
-require.alias("component-select/index.js", "manuelstofer-val/deps/select/index.js");
+require.alias("nickjackson-val/index.js", "pflock/deps/val/index.js");
+require.alias("component-select/index.js", "nickjackson-val/deps/select/index.js");
 
 require.alias("manuelstofer-extend/index.js", "pflock/deps/extend/index.js");
 require.alias("manuelstofer-each/index.js", "manuelstofer-extend/deps/each/index.js");
