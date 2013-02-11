@@ -56,7 +56,7 @@ function pflock (element, data, options) {
      * @param event
      */
     function fromDocument (event) {
-        var target  = event.target || event.srcElement,
+        var target  = getEventTarget(event),
             binding = getElementBinding(target),
             value   = readElement(target, binding.attribute);
         updateDocument(value, binding.path, binding.element);
@@ -172,7 +172,11 @@ function pflock (element, data, options) {
         ];
 
         each(events, function (eventName) {
-            element.addEventListener(eventName, fromDocument);
+            element.addEventListener(eventName, function (event) {
+                if (getEventTarget(event).attributes['x-bind'] !== undefined) {
+                    fromDocument(event);
+                }
+            });
         });
     }
 
@@ -229,5 +233,15 @@ function pflock (element, data, options) {
         return function (selector) {
             return window.$(element).find(selector).get();
         };
+    }
+
+    /**
+     * Returns the target of an event
+     *
+     * @param event
+     * @return {*|Object}
+     */
+    function getEventTarget (event) {
+        return event.target || event.srcElement;
     }
 }

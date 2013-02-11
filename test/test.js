@@ -78,9 +78,15 @@ describe('pflock', function () {
             triggerEvent(userName.get(0), 'input');
         });
 
+        describe('triggering an event on an element without data binding', function () {
+            it('should not throw an exeption', function () {
+                triggerEvent($('#unbound').get(0), 'input');
+            });
+        });
+
     });
 
-    describe('without updating data', function () {
+    describe('with option updateData: false', function () {
 
         beforeEach(function () {
             el = $('.document').clone();
