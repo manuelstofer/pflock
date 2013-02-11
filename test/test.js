@@ -35,6 +35,10 @@ describe('pflock', function () {
         el.find('.user-editable').text().should.equal(data.user.editable);
     };
 
+    afterEach(function () {
+        el.remove();
+    });
+
     describe('with default settings', function () {
 
         beforeEach(function () {
@@ -42,12 +46,6 @@ describe('pflock', function () {
             el.appendTo('body');
             bindings = pflock(el.get(0), data);
         });
-
-        afterEach(function () {
-            el.remove();
-        });
-
-
 
         it('should write the data to the document', function () {
             documentEqualsData();
