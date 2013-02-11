@@ -1,11 +1,11 @@
 {
     "name": "pflock",
     "description": "Two way binding",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "keywords": [],
     "dependencies": {
         "manuelstofer/each": "*",
-        "manuelstofer/val": "*",
+        "nickjackson/val": "*",
         "manuelstofer/extend": "*",
         "matthewp/attr": "*",
         "component/emitter": "*"

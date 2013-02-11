@@ -1,8 +1,10 @@
 # Pflock
 
+![Build status](https://api.travis-ci.org/manuelstofer/pflock.png)
+
 ![Pfock](https://raw.github.com/manuelstofer/pflock/master/resources/pflock.jpg)
 
-Pflock is an [component](http://github.com/component/) for binding data to a input
+Pflock is a [component](http://github.com/component/) for binding data to a input
 fields, content editables etc.
 
 It works in both directions. When the data changes Pflock
@@ -39,7 +41,7 @@ Pflock is template language agnostic. Bindings are done using x-bind attribute.
 
 ```
 
-## API
+## Usage
 
 ```Javascript
 var pflock = require('pflock');
@@ -55,3 +57,6 @@ bindings.on('change',  function (path, value) {
 
 });
 ```
+
+### Backbone models
+There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
