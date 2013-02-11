@@ -1,6 +1,6 @@
 {
     "name": "pflock",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "author": "Manuel Stofer <manuel@takimata.ch>",
     "devDependencies": {
         "mocha": "*",
