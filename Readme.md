@@ -41,7 +41,7 @@ Pflock is template language agnostic. Bindings are done using x-bind attribute.
 
 ```
 
-## API
+## Usage
 
 ```Javascript
 var pflock = require('pflock');
@@ -57,3 +57,6 @@ bindings.on('change',  function (path, value) {
 
 });
 ```
+
+### Backbone models
+There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
