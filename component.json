@@ -5,7 +5,7 @@
     "keywords": [],
     "dependencies": {
         "manuelstofer/each": "*",
-        "manuelstofer/val": "*",
+        "nickjackson/val": "*",
         "manuelstofer/extend": "*",
         "matthewp/attr": "*",
         "component/emitter": "*"
