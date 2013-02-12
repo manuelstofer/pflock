@@ -128,10 +128,7 @@ function pflock (element, data, options) {
      * @param value
      */
     function toData (path, value) {
-        var pathParts = path
-                .replace(/^\.+/, '')
-                .replace(/\.+$/, '')
-                .split(/\./),
+        var pathParts = path.split(/\./),
             obj = data,
             part;
 
@@ -197,8 +194,8 @@ function pflock (element, data, options) {
      *  toPathValue({user: 'test', foo: {bla: 'word'}})
      * Returns:
      *  {
-     *      '.user': 'test',
-     *      '.foo.bla': 'word'
+     *      'user': 'test',
+     *      'foo.bla': 'word'
      *  }
      *
      * @param data
@@ -208,14 +205,15 @@ function pflock (element, data, options) {
         var result = {};
         function convert (obj, path) {
             each(obj, function (item, key) {
+                var itemPath = (path ? path + '.' : '') + key;
                 if (isIterable(item)) {
-                    convert(item, path + '.' + key);
+                    convert(item, itemPath);
                 } else {
-                    result[path + '.' + key] = item;
+                    result[itemPath] = item;
                 }
             });
         }
-        convert(data, '');
+        convert(data);
         return result;
     }
 

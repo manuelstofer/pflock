@@ -19,10 +19,10 @@ describe('pflock', function () {
         data = {
             user: {
                 name:           'pflock',
-                    checked:        'checked-value',
-                    selected:       '2',
-                    text:           'bla',
-                    editable:       'edit here'
+                checked:        'checked-value',
+                selected:       '2',
+                text:           'bla',
+                editable:       'edit here'
             }
         };
     });
@@ -71,7 +71,7 @@ describe('pflock', function () {
             var userName = el.find('.input-user-name');
             userName.val('different');
             bindings.on('changed', function (path, value) {
-                path.should.equal('.user.name');
+                path.should.equal('user.name');
                 value.should.equal('different');
                 done();
             });

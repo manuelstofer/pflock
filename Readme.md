@@ -25,19 +25,19 @@ Pflock is template language agnostic. Bindings are done using x-bind attribute.
 ### Bind value
 
 ```HTML
-<input type="text" x-bind="value:.user.name" />
+<input type="text" x-bind="value:user.name" />
 ```
 
 ### Bind inner HTML
 
 ```HTML
-<p contenteditable x-bind=".user.description"></p>
+<p contenteditable x-bind="user.description"></p>
 ```
 
 ### Bind attribute
 
 ```HTML
-<img src="image.jpg" x-bind="src:.user.image"/>
+<img src="image.jpg" x-bind="src:user.image"/>
 
 ```
 

@@ -24,25 +24,25 @@
     <div class="inputs">
 
         <span id="unbound"></span>
-        <h1 x-bind=".user.name" contenteditable></h1>
-        <input class="input-user-name" type="text" x-bind="value:.user.name" value="Manuel">
-        <input class="input-user-checked" type="checkbox" value="checked-value" checked x-bind="value:.user.checked">
-        <select class="input-user-selected" x-bind="value:.user.selected">
+        <h1 x-bind="user.name" contenteditable></h1>
+        <input class="input-user-name" type="text" x-bind="value:user.name" value="Manuel">
+        <input class="input-user-checked" type="checkbox" value="checked-value" checked x-bind="value:user.checked">
+        <select class="input-user-selected" x-bind="value:user.selected">
             <option value="1">Option 1</option>
             <option value="2">Option 2</option>
         </select>
-        <textarea class="input-user-text" x-bind="value:.user.text"></textarea>
-        <p class="input-user-editable" x-bind=".user.editable" contenteditable></p>
+        <textarea class="input-user-text" x-bind="value:user.text"></textarea>
+        <p class="input-user-editable" x-bind="user.editable" contenteditable></p>
     </div>
 
 
     <div class="status">
         <dl>
-            <dt>.user.name</dt><dd class="user-name" x-bind=".user.name"></dd>
-            <dt>.user.checked</dt><dd class="user-checked" x-bind=".user.checked"></dd>
-            <dt>.user.selected</dt><dd class="user-selected" x-bind=".user.selected"></dd>
-            <dt>.user.text</dt><dd class="user-text" x-bind=".user.text"></dd>
-            <dt>.user.editable</dt><dd class="user-editable" x-bind=".user.editable"></dd>
+            <dt>.user.name</dt><dd class="user-name" x-bind="user.name"></dd>
+            <dt>.user.checked</dt><dd class="user-checked" x-bind="user.checked"></dd>
+            <dt>.user.selected</dt><dd class="user-selected" x-bind="user.selected"></dd>
+            <dt>.user.text</dt><dd class="user-text" x-bind="user.text"></dd>
+            <dt>.user.editable</dt><dd class="user-editable" x-bind="user.editable"></dd>
         </dl>
     </div>
 
