@@ -43,13 +43,6 @@ Bindings are done using x-bind attribute.
 
 ```
 
-## Templating
-Pflock has no built in template engine. Any engine will work just fine.
-
-[Richard Parker](http://github.com/manuelstofer/richardparker) is a very simple
-template engine and makes it easy to create the bindings. It keeps
-track over the binding path when you iterate over an object or array.
-
 ## Usage
 
 ```Javascript
@@ -71,3 +64,9 @@ bindings.on('change',  function (path, value) {
 There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
 
 
+## Templating
+Pflock has no built in template engine. Any engine will work just fine.
+
+[Richard Parker](http://github.com/manuelstofer/richardparker) is engine built
+to be used together with Pflock. It makes it easy to create the bindings by
+keeping track over the binding path when you iterate over objects or arrays.
