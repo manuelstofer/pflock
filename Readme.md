@@ -4,7 +4,7 @@
 
 ![Pfock](https://raw.github.com/manuelstofer/pflock/master/resources/pflock.jpg)
 
-Pflock is a [component](http://github.com/component/) for binding data to a input
+Pflock is a [component](http://github.com/component/) for binding data to input
 fields, content editables etc.
 
 It works in both directions. When the data changes Pflock
