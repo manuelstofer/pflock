@@ -67,6 +67,6 @@ There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http:/
 ## Templating
 Pflock has no built in template engine. Any engine will work just fine.
 
-[Richard Parker](http://github.com/manuelstofer/richardparker) is engine built
+[Richard Parker](http://github.com/manuelstofer/richardparker) was built
 to be used together with Pflock. It makes it easy to create the bindings by
 keeping track over the binding path when you iterate over objects or arrays.
