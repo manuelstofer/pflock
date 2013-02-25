@@ -4,7 +4,7 @@
 
 ![Pfock](https://raw.github.com/manuelstofer/pflock/master/resources/pflock.jpg)
 
-Pflock is a [component](http://github.com/component/) for binding data to a input
+Pflock is a [component](http://github.com/component/) for binding data to input
 fields, content editables etc.
 
 It works in both directions. When the data changes Pflock
@@ -18,8 +18,10 @@ can update the document and the other way around.
 $ component install manuelstofer/pflock
 ```
 
-## Bindings
-Pflock is template language agnostic. Bindings are done using x-bind attribute.
+
+## Binding Syntax
+
+Bindings are done using x-bind attribute.
 
 
 ### Bind value
@@ -60,3 +62,11 @@ bindings.on('change',  function (path, value) {
 
 ### Backbone models
 There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
+
+
+## Templating
+Pflock has no built in template engine. Any engine will work just fine.
+
+[Richard Parker](http://github.com/manuelstofer/richardparker) was built
+to be used together with Pflock. It makes it easy to create the bindings by
+keeping track over the binding path when you iterate over objects or arrays.
