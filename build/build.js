@@ -740,7 +740,13 @@ var each    = require('each'),
 exports = module.exports = pflock;
 
 var defaults = {
-    updateData: true
+    updateData: true,
+    events: [
+        'checked',
+        'selected',
+        'input',
+        'change'
+    ]
 };
 
 /**
@@ -902,14 +908,7 @@ function pflock (element, data, options) {
      * Adds the required event listeners
      */
     function setupEvents () {
-        var events = [
-            'checked',
-            'selected',
-            'input',
-            'change'
-        ];
-
-        each(events, function (eventName) {
+        each(options.events, function (eventName) {
             element.addEventListener(eventName, function (event) {
                 if (getEventTarget(event).attributes['x-bind'] !== undefined) {
                     handleEvent(event);
