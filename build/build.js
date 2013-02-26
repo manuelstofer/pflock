@@ -664,6 +664,14 @@ Emitter.prototype.off =
 Emitter.prototype.removeListener =
 Emitter.prototype.removeAllListeners = function(event, fn){
   this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
@@ -823,6 +831,9 @@ function pflock (element, data, options) {
      */
     function readElement (el, attribute) {
         if (attribute === 'value') {
+            if (el.type === 'checkbox') {
+                return el.checked;
+            }
             return val(el).value();
         }
         if (attribute === '') {
@@ -842,12 +853,16 @@ function pflock (element, data, options) {
             attribute = binding.attribute;
 
         if (attribute === 'value') {
-            return val(el).value(value);
-        }
-        if (attribute === '') {
+            if (el.type === 'checkbox') {
+                el.checked = !!value;
+            } else {
+                val(el).value(value);
+            }
+        } else if(attribute === '') {
             el.innerHTML = value;
+        } else {
+            attr(el, attribute, value);
         }
-        attr(el, attribute, value);
     }
 
     /**
