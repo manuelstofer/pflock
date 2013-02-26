@@ -86,7 +86,7 @@ function pflock (element, data, options) {
      */
     function readElement (el, attribute) {
         if (attribute === 'value') {
-            return val(el);
+            return val(el).value();
         }
         if (attribute === '') {
             return el.innerHTML;
@@ -105,7 +105,7 @@ function pflock (element, data, options) {
             attribute = binding.attribute;
 
         if (attribute === 'value') {
-            return val(el, value);
+            return val(el).value(value);
         }
         if (attribute === '') {
             el.innerHTML = value;
