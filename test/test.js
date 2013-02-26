@@ -79,11 +79,18 @@ describe('pflock', function () {
         });
 
         describe('triggering an event on an element without data binding', function () {
-            it('should not throw an exeption', function () {
+            it('should not throw an exception', function () {
                 triggerEvent($('#unbound').get(0), 'input');
             });
         });
 
+        it('fromDocument should return the correct data', function () {
+            var userNameInput = el.find('.input-user-name');
+            bindings.toDocument({user: {name: 'changed'}});
+            userNameInput.val('changed again');
+            triggerEvent(userNameInput.get(0), 'input');
+            bindings.fromDocument().user.name.should.equal('changed again');
+        });
     });
 
     describe('with option updateData: false', function () {
