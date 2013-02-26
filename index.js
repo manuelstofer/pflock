@@ -29,7 +29,8 @@ function pflock (element, data, options) {
     var $ = getQueryEngine();
 
     var api = {
-        toDocument: toDocument
+        toDocument:     toDocument,
+        fromDocument:   fromDocument
     };
 
     emitter(api);
@@ -51,11 +52,20 @@ function pflock (element, data, options) {
     }
 
     /**
+     * Returns the data from the document
+     *
+     * @return {Object} the data object
+     */
+    function fromDocument () {
+       return data;
+    }
+
+    /**
      * Handles changes in document
      *
      * @param event
      */
-    function fromDocument (event) {
+    function handleEvent (event) {
         var target  = getEventTarget(event),
             binding = getElementBinding(target),
             value   = readElement(target, binding.attribute);
@@ -171,7 +181,7 @@ function pflock (element, data, options) {
         each(events, function (eventName) {
             element.addEventListener(eventName, function (event) {
                 if (getEventTarget(event).attributes['x-bind'] !== undefined) {
-                    fromDocument(event);
+                    handleEvent(event);
                 }
             });
         });
