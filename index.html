@@ -37,23 +37,22 @@
 
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="test/jquery.js"></script>
 <script src="build/build.js"></script>
 <script>
     var pflock = require('pflock'),
-        data = {
+        dataElement = document.getElementById('data-edit'),
+        bindings = pflock(document.body, {
             user: {
                 name:           'Pflock',
                 description:    'Please try to edit some input fields, this text or the JSON structure below',
                 checked:        'false',
                 selected:       '3'
             }
-        },
-        dataElement = document.getElementById('data-edit'),
-        bindings = pflock(document.body, data);
+        });
 
     function writeJSON () {
-        dataElement.value = JSON.stringify(data);
+        dataElement.value = JSON.stringify(bindings.fromDocument());
     }
 
     bindings.on('changed', function (path, value) {
