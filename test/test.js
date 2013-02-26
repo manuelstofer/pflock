@@ -19,7 +19,7 @@ describe('pflock', function () {
         data = {
             user: {
                 name:           'pflock',
-                checked:        'checked-value',
+                checked:        true,
                 selected:       '2',
                 text:           'bla',
                 editable:       'edit here'
@@ -29,10 +29,12 @@ describe('pflock', function () {
 
     var documentEqualsData = function () {
         el.find('.user-name').text().should.equal(data.user.name);
-        el.find('.user-checked').text().should.equal(data.user.checked);
         el.find('.user-selected').text().should.equal(data.user.selected);
+        el.find('.user-checked').text().should.equal(data.user.checked.toString());
         el.find('.user-text').text().should.equal(data.user.text);
         el.find('.user-editable').text().should.equal(data.user.editable);
+
+        (!!el.find('.input-user-checked').prop('checked')).should.equal(data.user.checked);
     };
 
     afterEach(function () {
