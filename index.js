@@ -81,6 +81,7 @@ function pflock (element, data, options) {
             toData(binding.path, value);
         }
         api.emit('changed', binding.path, value);
+        event.stopPropagation();
     }
 
     /**
