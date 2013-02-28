@@ -4,7 +4,8 @@ var each    = require('each'),
     attr    = require('attr'),
     val     = require('val'),
     emitter = require('emitter'),
-    extend  = require('extend');
+    extend  = require('extend'),
+    domify  = require('domify');
 
 exports = module.exports = pflock;
 
@@ -39,6 +40,8 @@ function pflock (element, data, options) {
         fromDocument:   fromDocument
     };
 
+    var eachTemplates = [];
+
     emitter(api);
     setupEvents();
     toDocument();
@@ -54,6 +57,45 @@ function pflock (element, data, options) {
         if (replace !== undefined) {
             data = replace;
         }
+
+        each($('[x-each]'), function (el) {
+            var path = attr(el).get('x-each'),
+                id,
+                pathParts = path.split(/\./),
+                objects = data,
+                part;
+
+            // store and get the "eachTemplate"
+            if (! attr(el).has('x-each-id')) {
+                id = eachTemplates.length;
+                attr(el).set('x-each-id', id);
+                eachTemplates.push(el.innerHTML);
+            } else {
+                id = attr(el).get('x-each-id');
+            }
+            el.innerHTML = '';
+
+            // get the good part of data (theorically an array)
+            while (pathParts.length > 0) {
+                part = pathParts.shift();
+                objects = objects[part] || (objects = objects[part] = {});
+            }
+
+            // create a new node for each element of the array and append it to the element
+            each(objects, function(objet, i) {
+                var newNode = domify(eachTemplates[id])[0].cloneNode(true);
+                var $$ = getQueryEngine(newNode);
+                each($$('[x-bind]'), function(subel) {
+                    attr(subel).set('x-bind', path + '.' + i + attr(subel).get('x-bind'));
+                });
+                if (attr(newNode).has('x-bind'))
+                    attr(newNode).set('x-bind', path + '.' + i + attr(newNode).get('x-bind'));
+
+                el.appendChild(newNode);
+            });
+
+        });
+
         each(toPathValueHash(data), updateDocument);
     }
 
@@ -237,16 +279,18 @@ function pflock (element, data, options) {
     /**
      * Get querySelectorAll with jQuery fallback, if available
      *
+     * @param scope of the query (default to element)
      * @return function
      */
-    function getQueryEngine () {
-        if (element.querySelectorAll) {
+    function getQueryEngine (from) {
+        var from = from || element;
+        if (from.querySelectorAll) {
             return function (selector) {
-                return element.querySelectorAll(selector);
+                return from.querySelectorAll(selector);
             };
         }
         return function (selector) {
-            return window.$(element).find(selector).get();
+            return window.$(from).find(selector).get();
         };
     }
 
