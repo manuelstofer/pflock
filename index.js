@@ -54,7 +54,7 @@ function pflock (element, data, options) {
         if (replace !== undefined) {
             data = replace;
         }
-        updateCollections();
+        updateXEachs();
         each(toPathValueHash(data), updateDocument);
     }
 
@@ -182,20 +182,26 @@ function pflock (element, data, options) {
         };
     }
 
+    function cmpNestingLevel(el1, el2) {
+        return getNestingLevel(el1) - getNestingLevel(el2);
+    }
+
     /**
      * Adds / removes childNodes for items in x-each
      * Updates all bound path
-     *
-     * @todo Support the same for objects and allow to bindings of keys
-     * @todo Support nested each bindings
+     * 
      */
-    function updateCollections () {
+    function updateXEachs () {
 
-        each($('[x-each]'), function (container) {
+        // Outer x-each must be processed first.
+        var xEachs = $('[x-each]').sort(cmpNestingLevel);
 
-            var path        = attr(container).get('x-each'),
-                elData      = resolvePath(path),
-                children    = container.children;
+        while (xEachs.length) {
+
+            var container = xEachs.shift(),
+                path      = attr(container).get('x-each'),
+                elData    = resolvePath(path),
+                children  = container.children;
 
             container.pflockTemplateNode = container.pflockTemplateNode || children[0];
 
@@ -211,23 +217,77 @@ function pflock (element, data, options) {
             // the first element is cloned and appended at the end until
             // the number of children matches the amount of items in the array
             while (children.length < elData.length) {
-                container.appendChild(container.pflockTemplateNode.cloneNode(true));
+                var clone = container.pflockTemplateNode.cloneNode(true);
+                container.appendChild(clone);
+
+                // a element is cloned there might be new subeachs created
+                var clonedXEachs = getQueryEngine(clone)('[x-each]');
+                if (attr(clone).has('x-each')) {
+                    clonedXEachs.push(clone);
+                }
+                if (clonedXEachs.length) {
+                    each(clonedXEachs, function (xEach) {
+                        xEachs.push(xEach);
+                    });
+                }
             }
 
             // the path is updated on all child elements
             each(elData, function (childData, childIndex) {
-                var childNode = children[childIndex],
-                    $$        = getQueryEngine(childNode),
-                    bindings  = $$('[x-bind]');
+                var childNode   = children[childIndex],
+                    $$          = getQueryEngine(childNode),
+                    subBindings = $$('[x-bind]'),
+                    subXEachs   = $$('[x-each]');
 
-                if (attr(childNode, 'x-bind')) {
-                    setBindPrefix(childNode, path, childIndex);
+                if (attr(childNode).has('x-bind')) {
+                    subBindings.push(childNode);
                 }
-                each(bindings, function (boundElement) {
+                each(subBindings, function (boundElement) {
                     setBindPrefix(boundElement, path, childIndex);
                 });
+
+                if (attr(childNode).has('x-each')) {
+                    subXEachs.push(childNode);
+                }
+                each(subXEachs, function (subEach) {
+                    setSubEachPath(subEach, path, childIndex);
+                });
             });
-        });
+        }
+    }
+
+    /**
+     * Gets the nesting level of DOM Element.
+     * - Required for sorting processing order of x-each
+     * @param el
+     * @param n
+     * @return {*}
+     */
+    function getNestingLevel (el, n) {
+        n = n || 0;
+        if (el.parentNode) {
+            return getNestingLevel(el.parentNode, n + 1);
+        }
+        return n;
+    }
+
+    /**
+     * Updates the each path of sub x-each node
+     *
+     * @param el
+     * @param eachPrefix
+     * @param index
+     */
+    function setSubEachPath (el, eachPrefix, index) {
+        var path            = attr(el).get('x-each'),
+            testPathPrefix  = path.substr(0, eachPrefix.length);
+
+        if (testPathPrefix === eachPrefix) {
+            var subPath     = path.substr(eachPrefix.length),
+                newSubPath  = subPath.replace(/^\.[^\.]+/, '.' + index),
+                newPath     = eachPrefix + newSubPath;
+            attr(el).set('x-each', newPath);
+        }
     }
 
     /**
@@ -244,7 +304,7 @@ function pflock (element, data, options) {
 
         if (testPathPrefix === eachPrefix) {
             var subPath     = path.substr(eachPrefix.length),
-                newSubPath  = subPath.replace(/^\.[^\.]+\./, '.' + index + '.'),
+                newSubPath  = subPath.replace(/^\.[^\.]+/, '.' + index),
                 newPath     = eachPrefix + newSubPath;
             attr(el).set('x-bind', newPath);
         }
@@ -331,7 +391,7 @@ function pflock (element, data, options) {
         from = from || element;
         if (from.querySelectorAll) {
             return function (selector) {
-                return from.querySelectorAll(selector);
+                return [].slice.call(from.querySelectorAll(selector)) || [];
             };
         }
         return function (selector) {

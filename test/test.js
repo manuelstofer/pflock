@@ -191,8 +191,7 @@ describe('pflock', function () {
 
     describe('invalid x-each', function () {
         var data,
-            el,
-            bindings;
+            el;
 
         beforeEach(function () {
             data = {
@@ -210,6 +209,33 @@ describe('pflock', function () {
             chai.expect(function () {
                 pflock(el.get(0), data, {updateData: false});
             }).to.throw(/x-each needs a template node/);
+        });
+    });
+
+    describe('nested x-each', function () {
+        var data,
+            el,
+            bindings;
+
+        beforeEach(function () {
+            data = {
+                users: [
+                    {name: 'Edwin', pets: ['Dog', 'Cat']},
+                    {name: 'Bla',   pets: ['Bird', 'Rabbit']}
+                ]
+            };
+            el = $('.nested-each:first').clone(false);
+            $('body').append(el);
+        });
+
+        it('should render correct data and structure', function () {
+            bindings = pflock(el.get(0), data, {updateData: false});
+            $(el).find('ul.outer > li').each(function (outerIndex) {
+                var outerEl = $(this);
+                outerEl.find('ul.inner > li').each(function (innerIndex) {
+                    $(this).text().should.equal(data.users[outerIndex].pets[innerIndex]);
+                });
+            });
         });
     });
 });

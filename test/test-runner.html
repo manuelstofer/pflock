@@ -24,6 +24,17 @@
     <ul class="each-users" x-each="users"></ul>
 </div>
 
+<div class="nested-each">
+    <ul class="outer" x-each="users">
+        <li>
+            <span x-bind="users.x.name"></span>
+            <ul class="inner" x-each="users.x.pets">
+                <li x-bind="users.x.pets.x"></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
 <div class="document">
 
     <div class="inputs">
