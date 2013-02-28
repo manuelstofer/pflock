@@ -60,6 +60,30 @@ bindings.on('change',  function (path, value) {
 });
 ```
 
+## using arrays
+
+```Javascript
+var pflock = require('pflock');
+var data = {
+	users: [
+		{name: 'Laurence', age:37},
+		{name: 'Thomas', age:38},
+		{name: 'Sarah', age:1},
+	]
+};
+```
+
+```Html
+<ul x-each="users">
+  <li><span x-bind=".name"></span> [<span  x-bind=".age"></span>]</li>
+</ul>
+
+<ul x-each="users">
+  <li x-bind=".name"></li>
+</ul>
+```
+
+
 ### Backbone models
 There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
 
