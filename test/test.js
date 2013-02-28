@@ -1,8 +1,12 @@
 /*global describe, it, $, beforeEach*/
 var pflock = require('pflock');
 
-
-pflock($('.document').get(0), {});
+pflock($('.document').get(0), {
+    users: [
+        {name: 'example 1'},
+        {name: 'example 2'}
+    ]
+});
 
 describe('test setup', function () {
     it('should work', function () {
@@ -37,14 +41,10 @@ describe('pflock', function () {
         (!!el.find('.input-user-checked').prop('checked')).should.equal(data.user.checked);
     };
 
-    afterEach(function () {
-        el.remove();
-    });
-
     describe('with default settings', function () {
 
         beforeEach(function () {
-            el = $('.document').clone();
+            el = $('.document:first').clone();
             el.appendTo('body');
             bindings = pflock(el.get(0), data);
         });
@@ -69,7 +69,7 @@ describe('pflock', function () {
             documentEqualsData();
         });
 
-        it('should emit an event when values values change', function (done) {
+        it('should emit an event when values change', function (done) {
             var userName = el.find('.input-user-name');
             userName.val('different');
             bindings.on('changed', function (path, value) {
@@ -98,7 +98,7 @@ describe('pflock', function () {
     describe('with option updateData: false', function () {
 
         beforeEach(function () {
-            el = $('.document').clone();
+            el = $('.document:first').clone();
             el.appendTo('body');
             bindings = pflock(el.get(0), data, {updateData: false});
 
@@ -112,6 +112,62 @@ describe('pflock', function () {
         });
     });
 
+    describe('x-each', function () {
+        var data,
+            el,
+            bindings;
+
+        beforeEach(function () {
+            data = {
+                users: [
+                    {name: 'example 1'},
+                    {name: 'example 2'}
+                ]
+            };
+            el = $('.document:first').clone(false);
+            el.appendTo('body');
+            bindings = pflock(el.get(0), data, {updateData: false});
+        });
+
+        function checkData() {
+
+            it('should create the right amount child nodes', function () {
+                el.find('.each-users li').length.should.equal(data.users.length);
+            });
+
+            it('should write the correct data', function () {
+                el.find('.each-users li').each(function (index) {
+                    $(this).text().should.equal(data.users[index].name);
+                });
+            });
+        }
+
+        describe('without adding/removing', function () {
+            checkData();
+        });
+
+        describe('when removing items', function () {
+            beforeEach(function () {
+                data.users.pop();
+                bindings.toDocument();
+
+                data.users.shift();
+                bindings.toDocument();
+            });
+            checkData();
+        });
+
+        describe('when adding items', function () {
+            beforeEach(function () {
+                data.users.push({name: 'example 3'});
+                bindings.toDocument();
+
+                data.users.unshift({name: 'example 4'});
+                bindings.toDocument();
+            });
+            checkData();
+        });
+    });
 });
 
 

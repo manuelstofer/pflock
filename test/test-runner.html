@@ -33,6 +33,10 @@
         </select>
         <textarea class="input-user-text" x-bind="value:user.text"></textarea>
         <p class="input-user-editable" x-bind="user.editable" contenteditable></p>
+
+        <ul class="each-users" x-each="users">
+            <li x-bind="users.x.name"></li>
+        </ul>
     </div>
 
 

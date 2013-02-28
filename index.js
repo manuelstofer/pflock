@@ -4,8 +4,7 @@ var each    = require('each'),
     attr    = require('attr'),
     val     = require('val'),
     emitter = require('emitter'),
-    extend  = require('extend'),
-    domify  = require('domify');
+    extend  = require('extend');
 
 exports = module.exports = pflock;
 
@@ -40,8 +39,6 @@ function pflock (element, data, options) {
         fromDocument:   fromDocument
     };
 
-    var eachTemplates = [];
-
     emitter(api);
     setupEvents();
     toDocument();
@@ -57,45 +54,7 @@ function pflock (element, data, options) {
         if (replace !== undefined) {
             data = replace;
         }
-
-        each($('[x-each]'), function (el) {
-            var path = attr(el).get('x-each'),
-                id,
-                pathParts = path.split(/\./),
-                objects = data,
-                part;
-
-            // store and get the "eachTemplate"
-            if (! attr(el).has('x-each-id')) {
-                id = eachTemplates.length;
-                attr(el).set('x-each-id', id);
-                eachTemplates.push(el.innerHTML);
-            } else {
-                id = attr(el).get('x-each-id');
-            }
-            el.innerHTML = '';
-
-            // get the good part of data (theorically an array)
-            while (pathParts.length > 0) {
-                part = pathParts.shift();
-                objects = objects[part] || (objects = objects[part] = {});
-            }
-
-            // create a new node for each element of the array and append it to the element
-            each(objects, function(objet, i) {
-                var newNode = domify(eachTemplates[id])[0].cloneNode(true);
-                var $$ = getQueryEngine(newNode);
-                each($$('[x-bind]'), function(subel) {
-                    attr(subel).set('x-bind', path + '.' + i + attr(subel).get('x-bind'));
-                });
-                if (attr(newNode).has('x-bind'))
-                    attr(newNode).set('x-bind', path + '.' + i + attr(newNode).get('x-bind'));
-
-                el.appendChild(newNode);
-            });
-
-        });
-
+        updateCollections();
         each(toPathValueHash(data), updateDocument);
     }
 
@@ -143,7 +102,7 @@ function pflock (element, data, options) {
         if (attribute === '') {
             return el.innerHTML;
         }
-        return attr(el, attribute);
+        return attr(el).get(attribute);
     }
 
     /**
@@ -165,7 +124,7 @@ function pflock (element, data, options) {
         } else if(attribute === '') {
             el.innerHTML = value;
         } else {
-            attr(el, attribute, value);
+            attr(el).set(attribute, value);
         }
     }
 
@@ -212,15 +171,95 @@ function pflock (element, data, options) {
      * @return {Object}
      */
     function getElementBinding(el) {
-        var bindValue       = el.attributes['x-bind'].value,
-            bindParts       = bindValue.split(/:/),
-            attribute       = bindParts.length > 1 ? bindParts.shift(): '',
-            path            = bindParts.shift();
+        var bindValue   = attr(el).get('x-bind'),
+            bindParts   = bindValue.split(/:/),
+            attribute   = bindParts.length > 1 ? bindParts.shift(): '',
+            path        = bindParts.shift();
         return {
-            attribute: attribute,
-            path: path,
-            element: el
+            attribute:  attribute,
+            path:       path,
+            element:    el
         };
+    }
+
+    /**
+     * Adds / removes childNodes for items in x-each
+     * Updates all bound path
+     *
+     * @todo Support the same for objects and allow to bindings of keys
+     * @todo Support nested each bindings
+     */
+    function updateCollections () {
+
+        each($('[x-each]'), function (eachElement) {
+
+            var path        = attr(eachElement).get('x-each'),
+                elData      = resolvePath(path),
+                children    = eachElement.children;
+
+            // if there are too elements the last ones are removed
+            while (children.length > elData.length) {
+                eachElement.removeChild(children[children.length - 1]);
+            }
+
+            // the first element is cloned and appended at the end until
+            // the number of children matches the amount of items in the array
+            while (children.length < elData.length) {
+                eachElement.appendChild(children[0].cloneNode(true));
+            }
+
+            // the path is updated on all child elements
+            each(elData, function (childData, childIndex) {
+                var childNode = children[childIndex],
+                    $$        = getQueryEngine(childNode),
+                    bindings  = $$('[x-bind]');
+
+                if (attr(childNode, 'x-bind')) {
+                    setBindPrefix(childNode, path, childIndex);
+                }
+                each(bindings, function (boundElement) {
+                    setBindPrefix(boundElement, path, childIndex);
+                });
+            });
+        });
+    }
+
+    /**
+     * Update the binding path of a node in a x-each
+     *
+     * @param el
+     * @param eachPrefix
+     * @param index
+     */
+    function setBindPrefix (el, eachPrefix, index) {
+        var binding         = getElementBinding(el),
+            path            = binding.path,
+            testPathPrefix  = path.substr(0, eachPrefix.length);
+
+        if (testPathPrefix === eachPrefix) {
+            var subPath     = path.substr(eachPrefix.length),
+                newSubPath  = subPath.replace(/^\.[^\.]+\./, '.' + index + '.'),
+                newPath     = eachPrefix + newSubPath;
+            attr(el).set('x-bind', newPath);
+        }
+    }
+
+    /**
+     * Resolves a path in the data object
+     *
+     * @param path
+     * @return {*}
+     */
+    function resolvePath (path) {
+        var objects = data,
+            pathParts = path.split(/\./),
+            part;
+        // get the good part of data (theorically an array)
+        while (pathParts.length > 0) {
+            part = pathParts.shift();
+            objects = objects[part] || (objects = objects[part] = {});
+        }
+        return objects;
     }
 
     /**
@@ -279,11 +318,11 @@ function pflock (element, data, options) {
     /**
      * Get querySelectorAll with jQuery fallback, if available
      *
-     * @param scope of the query (default to element)
+     * @param from scope of the query (default to element)
      * @return function
      */
     function getQueryEngine (from) {
-        var from = from || element;
+        from = from || element;
         if (from.querySelectorAll) {
             return function (selector) {
                 return from.querySelectorAll(selector);
@@ -298,7 +337,7 @@ function pflock (element, data, options) {
      * Returns the target of an event
      *
      * @param event
-     * @return {*|Object}
+     * @return {Object}
      */
     function getEventTarget (event) {
         return event.target || event.srcElement;

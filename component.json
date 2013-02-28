@@ -8,8 +8,7 @@
         "nickjackson/val":      "0.1.0",
         "manuelstofer/extend":  "*",
         "matthewp/attr":        "*",
-        "component/emitter":    "*",
-        "component/domify": "*"
+        "component/emitter":    "*"
     },
     "development": {},
     "scripts": [
