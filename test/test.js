@@ -155,6 +155,9 @@ describe('pflock', function () {
                 bindings.toDocument();
             });
             checkData();
+            it('should have 0 items', function () {
+                data.users.length.should.equal(0);
+            });
         });
 
         describe('when adding items', function () {
@@ -166,6 +169,47 @@ describe('pflock', function () {
                 bindings.toDocument();
             });
             checkData();
+            it('should have 4 items', function () {
+                data.users.length.should.equal(4);
+            });
+        });
+
+        describe('when removing items to zero and adding again', function () {
+            beforeEach(function () {
+                data.users.pop();
+                data.users.shift();
+                bindings.toDocument();
+                data.users.unshift({name: 'example 5'});
+                bindings.toDocument();
+            });
+            checkData();
+            it('should have 1 item', function () {
+                data.users.length.should.equal(1);
+            });
+        });
+    });
+
+    describe('invalid x-each', function () {
+        var data,
+            el,
+            bindings;
+
+        beforeEach(function () {
+            data = {
+                users: [
+                    {name: 'example 1'},
+                    {name: 'example 2'}
+                ]
+            };
+            el = $('.invalid-each:first').clone(false);
+            el.appendTo('body');
+
+        });
+
+        it('should throw an exception when no template node is avaiable', function () {
+            chai.expect(function () {
+                pflock(el.get(0), data, {updateData: false});
+            }).to.throw(/x-each needs a template node/);
         });
     });
 });

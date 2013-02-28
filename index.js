@@ -191,21 +191,27 @@ function pflock (element, data, options) {
      */
     function updateCollections () {
 
-        each($('[x-each]'), function (eachElement) {
+        each($('[x-each]'), function (container) {
 
-            var path        = attr(eachElement).get('x-each'),
+            var path        = attr(container).get('x-each'),
                 elData      = resolvePath(path),
-                children    = eachElement.children;
+                children    = container.children;
+
+            container.pflockTemplateNode = container.pflockTemplateNode || children[0];
+
+            if (!container.pflockTemplateNode) {
+                throw new Error('x-each needs a template node');
+            }
 
             // if there are too elements the last ones are removed
             while (children.length > elData.length) {
-                eachElement.removeChild(children[children.length - 1]);
+                container.removeChild(children[children.length - 1]);
             }
 
             // the first element is cloned and appended at the end until
             // the number of children matches the amount of items in the array
             while (children.length < elData.length) {
-                eachElement.appendChild(children[0].cloneNode(true));
+                container.appendChild(container.pflockTemplateNode.cloneNode(true));
             }
 
             // the path is updated on all child elements

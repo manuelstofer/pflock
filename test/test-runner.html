@@ -19,6 +19,11 @@
     </style>
 </head>
 <body>
+
+<div class="invalid-each">
+    <ul class="each-users" x-each="users"></ul>
+</div>
+
 <div class="document">
 
     <div class="inputs">
@@ -60,6 +65,7 @@
     mocha.ui('bdd');
     mocha.reporter('html');
     chai.should();
+
 </script>
 <script src="../build/build.js"></script>
 <script src="test.js"></script>
