@@ -12,7 +12,6 @@ module.exports = function (instance) {
 
     var $ = util.getQueryEngine(instance.element);
 
-    instance.on('init',  prepareEachNodes);
     instance.on('write', prepareEachNodes);
 
     function prepareEachNodes () {
