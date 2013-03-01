@@ -12,6 +12,7 @@
     },
     "development": {},
     "scripts": [
-        "index.js"
+        "index.js",
+        "src/pflock.js"
     ]
 }
