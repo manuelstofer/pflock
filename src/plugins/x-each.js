@@ -1,122 +1,144 @@
-var attr = require('attr'),
-    each = require('each'),
-    util = require('./../util');
+'use strict';
+var attr    = require('attr'),
+    each    = require('each'),
+    util    = require('../util');
 
+/**
+ * Pflock plugin that provides the x-each syntax
+ *
+ * @param instance
+ */
 module.exports = function (instance) {
-    'use strict';
 
     var $ = util.getQueryEngine(instance.element);
 
-    instance.on('init',  updateXEachs);
-    instance.on('write', updateXEachs);
+    instance.on('init',  prepareEachNodes);
+    instance.on('write', prepareEachNodes);
+
+    function prepareEachNodes () {
+        each($('[x-each]').sort(cmpNestingLevel), prepareEachNode);
+    }
 
     /**
-     * Adds / removes childNodes for items in x-each
-     * Updates all bound path
+     * Creates the necessary DOM Structure to match the data of the array
+     * Updates the binding path of child x-each and x-bind nodes
      *
+     * @param eachNode
      */
-    function updateXEachs () {
+    function prepareEachNode (eachNode) {
+        var path         = attr(eachNode).get('x-each'),
+            elData       = util.resolvePath(path, instance.data),
+            children     = eachNode.children;
 
-        // Outer x-each must be processed first.
-        var xEachs = $('[x-each]').sort(cmpNestingLevel);
+        createChildNodes(eachNode, elData);
+        prepareChildNodes(children, elData, path);
+    }
 
-        while (xEachs.length) {
+    /**
+     * Adds removes child nodes to match the amount of elements in the array
+     *
+     * @param container
+     * @param data
+     */
+    function createChildNodes (container, data) {
+        var children = container.children,
+            templateNode = getTemplateNode(container);
 
-            var container = xEachs.shift(),
-                path      = attr(container).get('x-each'),
-                elData    = util.resolvePath(path, instance.data),
-                children  = container.children;
-
-            container.pflockTemplateNode = container.pflockTemplateNode || children[0];
-
-            if (!container.pflockTemplateNode) {
-                throw new Error('x-each needs a template node');
-            }
-
-            // if there are too elements the last ones are removed
-            while (children.length > elData.length) {
-                container.removeChild(children[children.length - 1]);
-            }
-
-            // the first element is cloned and appended at the end until
-            // the number of children matches the amount of items in the array
-            while (children.length < elData.length) {
-                var clone = container.pflockTemplateNode.cloneNode(true);
-                container.appendChild(clone);
-
-                // a element is cloned there might be new subeachs created
-                var clonedXEachs = util.getQueryEngine(clone)('[x-each]');
-                if (attr(clone).has('x-each')) {
-                    clonedXEachs.push(clone);
-                }
-                if (clonedXEachs.length) {
-                    each(clonedXEachs, function (clonedXEach) {
-                        xEachs.push(clonedXEach);
-                    });
-                }
-            }
-
-            // the path is updated on all child elements
-            each(elData, function (childData, childIndex) {
-                var childNode   = children[childIndex],
-                    $$          = util.getQueryEngine(childNode),
-                    subBindings = $$('[x-bind]'),
-                    subXEachs   = $$('[x-each]');
-
-                if (attr(childNode).has('x-bind')) {
-                    subBindings.push(childNode);
-                }
-                each(subBindings, function (boundElement) {
-                    setBindPrefix(boundElement, path, childIndex);
-                });
-
-                if (attr(childNode).has('x-each')) {
-                    subXEachs.push(childNode);
-                }
-                each(subXEachs, function (subEach) {
-                    setSubEachPath(subEach, path, childIndex);
-                });
-            });
+        // if there are too elements the last ones are removed
+        while (children.length > data.length) {
+            container.removeChild(children[children.length - 1]);
         }
+
+        // the first element is cloned and appended at the end until
+        // the number of children matches the amount of items in the array
+        while (children.length < data.length) {
+            var clone = templateNode.cloneNode(true);
+            container.appendChild(clone);
+        }
+    }
+
+    /**
+     * Updates the path of child nodes of a x-each node
+     *
+     * @param children
+     * @param data
+     * @param path
+     */
+    function prepareChildNodes (children, data, path) {
+        each(data, function (childData, childIndex) {
+            var childNode   = children[childIndex],
+                $$          = util.getQueryEngine(childNode),
+                childBinds  = $$('[x-bind]'),
+                childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
+
+            if (attr(childNode).has('x-bind')) {
+                childBinds.push(childNode);
+            }
+            each(childBinds, function (childBind) {
+                setBindingPath(childBind, path, childIndex);
+            });
+
+            if (childEach) {
+                setEachPath(childEach, path, childIndex);
+                prepareEachNode(childEach);
+            }
+        });
+    }
+
+    /**
+     * Returns the template node of a x-each node
+     *
+     * @param container
+     * @return Template node
+     */
+    function getTemplateNode(container) {
+        container.pflockTemplateNode = container.pflockTemplateNode || container.children[0];
+        if (!container.pflockTemplateNode) {
+            throw new Error('x-each needs a template node');
+        }
+        return container.pflockTemplateNode;
     }
 
     /**
      * Updates the each path of sub x-each node
      *
      * @param el
-     * @param eachPrefix
+     * @param prefix
      * @param index
      */
-    function setSubEachPath (el, eachPrefix, index) {
-        var path            = attr(el).get('x-each'),
-            testPathPrefix  = path.substr(0, eachPrefix.length);
-
-        if (testPathPrefix === eachPrefix) {
-            var subPath     = path.substr(eachPrefix.length),
-                newSubPath  = subPath.replace(/^\.[^\.]+/, '.' + index),
-                newPath     = eachPrefix + newSubPath;
-            attr(el).set('x-each', newPath);
-        }
+    function setEachPath (el, prefix, index) {
+        var path = attr(el).get('x-each');
+        attr(el).set('x-each', replaceIndex(prefix, index, path));
     }
 
     /**
      * Update the binding path of a node in a x-each
      *
      * @param el
-     * @param eachPrefix
+     * @param prefixPath
      * @param index
      */
-    function setBindPrefix (el, eachPrefix, index) {
-        var binding         = util.parseXBind(el),
-            path            = binding.path,
-            testPathPrefix  = path.substr(0, eachPrefix.length);
+    function setBindingPath (el, prefixPath, index) {
+        var binding     = util.parseXBind(el),
+            attribute   = binding.attribute ? binding.attribute + ':' : '',
+            newBinding  = attribute + replaceIndex(prefixPath, index, binding.path);
+       attr(el).set('x-bind', newBinding);
+    }
 
-        if (testPathPrefix === eachPrefix) {
-            var subPath     = path.substr(eachPrefix.length),
-                newSubPath  = subPath.replace(/^\.[^\.]+/, '.' + index),
-                newPath     = eachPrefix + newSubPath;
-            attr(el).set('x-bind', newPath);
+    /**
+     * Replace an index of a path
+     *
+     * @param prefix
+     * @param index
+     * @param path
+     * @return {*}
+     */
+    function replaceIndex(prefix, index, path) {
+        if (path.indexOf(prefix) === 0) {
+            var restPath = path.substr(prefix.length);
+            return prefix + restPath.replace(/^\.[^\.]/, '.' + index);
         }
+        return path;
     }
 
     /**

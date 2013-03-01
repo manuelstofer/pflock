@@ -1,8 +1,13 @@
 var each = require('each'),
     attr = require('attr'),
     val  = require('val'),
-    util = require('./../util');
+    util = require('../util');
 
+/**
+ * Pflock plugin: provides x-bind syntax
+ *
+ * @param instance
+ */
 module.exports = function (instance) {
     'use strict';
 

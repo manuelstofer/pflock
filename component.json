@@ -4,11 +4,11 @@
     "version": "0.4.1",
     "keywords": [],
     "dependencies": {
-        "manuelstofer/each":    "*",
         "nickjackson/val":      "0.1.0",
-        "manuelstofer/extend":  "*",
         "matthewp/attr":        "*",
-        "component/emitter":    "*"
+        "component/emitter":    "*",
+        "manuelstofer/each":    "*",
+        "manuelstofer/extend":  "*"
     },
     "development": {},
     "scripts": [
