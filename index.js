@@ -64,7 +64,7 @@ function pflock (element, data, options) {
      * @return {Object} the data object
      */
     function fromDocument () {
-       return data;
+        return data;
     }
 
     /**
@@ -182,14 +182,10 @@ function pflock (element, data, options) {
         };
     }
 
-    function cmpNestingLevel(el1, el2) {
-        return getNestingLevel(el1) - getNestingLevel(el2);
-    }
-
     /**
      * Adds / removes childNodes for items in x-each
      * Updates all bound path
-     * 
+     *
      */
     function updateXEachs () {
 
@@ -257,8 +253,20 @@ function pflock (element, data, options) {
     }
 
     /**
+     * Compare function to sort DOM elements by nesting level
+     *
+     * @param el1
+     * @param el2
+     * @return {*}
+     */
+    function cmpNestingLevel(el1, el2) {
+        return getNestingLevel(el1) - getNestingLevel(el2);
+    }
+
+    /**
      * Gets the nesting level of DOM Element.
      * - Required for sorting processing order of x-each
+     *
      * @param el
      * @param n
      * @return {*}
