@@ -13,6 +13,9 @@
     "development": {},
     "scripts": [
         "index.js",
-        "src/pflock.js"
+        "src/pflock.js",
+        "src/util.js",
+        "src/plugins/x-each.js",
+        "src/plugins/x-bind.js"
     ]
 }
