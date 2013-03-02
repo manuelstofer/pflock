@@ -27,6 +27,10 @@
 
         <input type="checkbox" x-bind="value:user.checked">
 
+        <ul x-each="user.list">
+            <li x-bind="user.list.x" contenteditable></li>
+        </ul>
+
     </div>
 
 
@@ -47,7 +51,11 @@
                 name:           'Pflock',
                 description:    'Please try to edit some input fields, this text or the JSON structure below',
                 checked:        true,
-                selected:       '3'
+                selected:       '3',
+                list: [
+                    'It handles',
+                    'your arrays too'
+                ]
             }
         });
 
