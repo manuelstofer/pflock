@@ -3,7 +3,6 @@ var attr = require('attr'),
     each = require('each');
 
 module.exports = {
-    resolvePath:        resolvePath,
     getEventTarget:     getEventTarget,
     getQueryEngine:     getQueryEngine,
     isIterable:         isIterable,
@@ -11,25 +10,6 @@ module.exports = {
     parseXBind:         parseXBind
 };
 
-
-/**
- * Resolves a path in the data object
- *
- * @param path
- * @param data
- * @return {*}
- */
-function resolvePath (path, data) {
-    var objects = data,
-        pathParts = path.split(/\./),
-        part;
-    // get the good part of data (theorically an array)
-    while (pathParts.length > 0) {
-        part = pathParts.shift();
-        objects = objects[part] || (objects = objects[part] = {});
-    }
-    return objects;
-}
 
 /**
  * Returns the target of an event

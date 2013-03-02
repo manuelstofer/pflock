@@ -8,7 +8,8 @@
         "matthewp/attr":        "*",
         "component/emitter":    "*",
         "manuelstofer/each":    "*",
-        "manuelstofer/extend":  "*"
+        "manuelstofer/extend":  "*",
+        "manuelstofer/resolvr": "*"
     },
     "development": {},
     "scripts": [

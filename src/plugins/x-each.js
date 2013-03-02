@@ -1,7 +1,8 @@
 'use strict';
 var attr    = require('attr'),
     each    = require('each'),
-    util    = require('../util');
+    util    = require('../util'),
+    resolve = require('resolvr').resolve;
 
 /**
  * Pflock plugin that provides the x-each syntax
@@ -26,11 +27,12 @@ module.exports = function (instance) {
      */
     function prepareEachNode (eachNode) {
         var path         = attr(eachNode).get('x-each'),
-            elData       = util.resolvePath(path, instance.data),
+            elData       = resolve(instance.data, path),
             children     = eachNode.children;
-
-        createChildNodes(eachNode, elData);
-        prepareChildNodes(children, elData, path);
+        if (elData) {
+            createChildNodes(eachNode, elData);
+            prepareChildNodes(children, elData, path);
+        }
     }
 
     /**
