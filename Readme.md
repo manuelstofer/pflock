@@ -43,6 +43,32 @@ Bindings are done using x-bind attribute.
 
 ```
 
+### Bind arrays
+Pflock can handle arrays. Thanks to [t8g](https://github.com/t8g)
+
+```Javascript
+var data = {
+    users: [
+        {name: 'Laurence', age:37},
+        {name: 'Thomas', age:38},
+        {name: 'Sarah', age:1},
+    ]
+};
+```
+
+When using the x-each Pflock will use the the child node as a template and clone it for every item.
+
+```Html
+<ul x-each="users">
+  <li><span x-bind="users.x.name"></span> [<span  x-bind="users.x.age"></span>]</li>
+</ul>
+
+<ul x-each="users">
+  <li x-bind="users.x.name"></li>
+</ul>
+```
+
+
 ## Usage
 
 ```Javascript
