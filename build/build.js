@@ -206,30 +206,6 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("manuelstofer-each/index.js", function(exports, require, module){
-"use strict";
-
-var nativeForEach = [].forEach;
-
-// Underscore's each function
-module.exports = function (obj, iterator, context) {
-    if (obj == null) return;
-    if (nativeForEach && obj.forEach === nativeForEach) {
-        obj.forEach(iterator, context);
-    } else if (obj.length === +obj.length) {
-        for (var i = 0, l = obj.length; i < l; i++) {
-            if (iterator.call(context, obj[i], i, obj) === {}) return;
-        }
-    } else {
-        for (var key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                if (iterator.call(context, obj[key], key, obj) === {}) return;
-            }
-        }
-    }
-};
-
-});
 require.register("nickjackson-val/index.js", function(exports, require, module){
 /**
  * Initalizes and returns the correct API
@@ -514,22 +490,6 @@ SelectAPI.prototype.text = function(string){
   return this.select.call(this, 'innerText', string);
 }
 });
-require.register("manuelstofer-extend/index.js", function(exports, require, module){
-"use strict";
-var each = require('each'),
-    slice = [].slice;
-
-// Extend a given object with all the properties in passed-in object(s).
-module.exports = function (obj) {
-    each(slice.call(arguments, 1), function (source) {
-        for (var prop in source) {
-            obj[prop] = source[prop];
-        }
-    });
-    return obj;
-};
-
-});
 require.register("matthewp-attr/index.js", function(exports, require, module){
 /*
 ** Fallback for older IE without get/setAttribute
@@ -736,7 +696,51 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 });
+require.register("manuelstofer-each/index.js", function(exports, require, module){
+"use strict";
+
+var nativeForEach = [].forEach;
+
+// Underscore's each function
+module.exports = function (obj, iterator, context) {
+    if (obj == null) return;
+    if (nativeForEach && obj.forEach === nativeForEach) {
+        obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) {
+        for (var i = 0, l = obj.length; i < l; i++) {
+            if (iterator.call(context, obj[i], i, obj) === {}) return;
+        }
+    } else {
+        for (var key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                if (iterator.call(context, obj[key], key, obj) === {}) return;
+            }
+        }
+    }
+};
+
+});
+require.register("manuelstofer-extend/index.js", function(exports, require, module){
+"use strict";
+var each = require('each'),
+    slice = [].slice;
+
+// Extend a given object with all the properties in passed-in object(s).
+module.exports = function (obj) {
+    each(slice.call(arguments, 1), function (source) {
+        for (var prop in source) {
+            obj[prop] = source[prop];
+        }
+    });
+    return obj;
+};
+
+});
 require.register("pflock/index.js", function(exports, require, module){
+module.exports = require('./src/pflock');
+
+});
+require.register("pflock/src/pflock.js", function(exports, require, module){
 /*global module*/
 
 var each    = require('each'),
@@ -754,6 +758,10 @@ var defaults = {
         'selected',
         'input',
         'change'
+    ],
+    plugins: [
+        './plugins/x-each',
+        './plugins/x-bind'
     ]
 };
 
@@ -769,20 +777,26 @@ function pflock (element, data, options) {
     'use strict';
 
     element = element || document.body;
-    options = extend(defaults, options);
+    options = extend({}, defaults, options);
 
-    var $ = getQueryEngine();
-
-    var api = {
+    var instance = emitter({
+        element:        element,
+        data:           data,
         toDocument:     toDocument,
-        fromDocument:   fromDocument
-    };
+        fromDocument:   fromDocument,
+        options:        options
+    });
 
-    emitter(api);
-    setupEvents();
-    toDocument();
 
-    return api;
+    each(options.plugins, function (plugin) {
+        require(plugin)(instance);
+    });
+
+    instance.emit('init');
+    instance.emit('write');
+    instance.on('document-change', toData);
+
+    return instance;
 
     /**
      * Write the data to the document
@@ -791,9 +805,9 @@ function pflock (element, data, options) {
      */
     function toDocument (replace) {
         if (replace !== undefined) {
-            data = replace;
+            instance.data = replace;
         }
-        each(toPathValueHash(data), updateDocument);
+        instance.emit('write');
     }
 
     /**
@@ -802,7 +816,357 @@ function pflock (element, data, options) {
      * @return {Object} the data object
      */
     function fromDocument () {
-       return data;
+        instance.emit('read');
+        return instance.data;
+    }
+
+    /**
+     * Writes a value back to the data object
+     *
+     * @param path
+     * @param value
+     */
+    function toData (path, value) {
+        if (instance.options.updateData) {
+            var pathParts = path.split(/\./),
+                obj = instance.data,
+                part;
+
+            while (pathParts.length > 1) {
+                part = pathParts.shift();
+                obj = obj[part] || (obj = obj[part] = {});
+            }
+            obj[pathParts.shift()] = value;
+        }
+        instance.emit('changed', path, value);
+    }
+}
+
+});
+require.register("pflock/src/util.js", function(exports, require, module){
+'use strict';
+var attr = require('attr'),
+    each = require('each');
+
+module.exports = {
+    resolvePath:        resolvePath,
+    getEventTarget:     getEventTarget,
+    getQueryEngine:     getQueryEngine,
+    isIterable:         isIterable,
+    toPathValueHash:    toPathValueHash,
+    parseXBind:         parseXBind
+};
+
+
+/**
+ * Resolves a path in the data object
+ *
+ * @param path
+ * @param data
+ * @return {*}
+ */
+function resolvePath (path, data) {
+    var objects = data,
+        pathParts = path.split(/\./),
+        part;
+    // get the good part of data (theorically an array)
+    while (pathParts.length > 0) {
+        part = pathParts.shift();
+        objects = objects[part] || (objects = objects[part] = {});
+    }
+    return objects;
+}
+
+/**
+ * Returns the target of an event
+ *
+ * @param event
+ * @return {Object}
+ */
+function getEventTarget (event) {
+    return event.target || event.srcElement;
+}
+
+/**
+ * Get querySelectorAll with jQuery fallback, if available
+ *
+ * @param from scope of the query (default to element)
+ * @return function
+ */
+function getQueryEngine (from) {
+    if (from.querySelectorAll) {
+        return function (selector) {
+            return [].slice.call(from.querySelectorAll(selector)) || [];
+        };
+    }
+    return function (selector) {
+        return window.$(from).find(selector).get();
+    };
+}
+
+/**
+ * Checks if obj is iterable using each
+ *
+ * @param obj
+ * @return {Boolean}
+ */
+function isIterable (obj) {
+    return obj instanceof Array || obj === Object(obj);
+}
+
+/**
+ * Converts the object data to a hash with path and value
+ *
+ * Example:
+ *  toPathValue({user: 'test', foo: {bla: 'word'}})
+ * Returns:
+ *  {
+     *      'user': 'test',
+     *      'foo.bla': 'word'
+     *  }
+ *
+ * @param data
+ * @return {Object}
+ */
+function toPathValueHash (data) {
+    var result = {};
+    function convert (obj, path) {
+        each(obj, function (item, key) {
+            var itemPath = (path ? path + '.' : '') + key;
+            if (isIterable(item)) {
+                convert(item, itemPath);
+            } else {
+                result[itemPath] = item;
+            }
+        });
+    }
+    convert(data);
+    return result;
+}
+
+/**
+ * Gets the element binding definition
+ *
+ * @param el
+ * @return {Object}
+ */
+function parseXBind(el) {
+    var bindValue   = attr(el).get('x-bind'),
+        bindParts   = bindValue.split(/:/),
+        attribute   = bindParts.length > 1 ? bindParts.shift(): '',
+        path        = bindParts.shift();
+    return {
+        attribute:  attribute,
+        path:       path,
+        element:    el
+    };
+}
+});
+require.register("pflock/src/plugins/x-each.js", function(exports, require, module){
+'use strict';
+var attr    = require('attr'),
+    each    = require('each'),
+    util    = require('../util');
+
+/**
+ * Pflock plugin that provides the x-each syntax
+ *
+ * @param instance
+ */
+module.exports = function (instance) {
+
+    var $ = util.getQueryEngine(instance.element);
+
+    instance.on('write', prepareEachNodes);
+
+    function prepareEachNodes () {
+        each($('[x-each]').sort(cmpNestingLevel), prepareEachNode);
+    }
+
+    /**
+     * Creates the necessary DOM Structure to match the data of the array
+     * Updates the binding path of child x-each and x-bind nodes
+     *
+     * @param eachNode
+     */
+    function prepareEachNode (eachNode) {
+        var path         = attr(eachNode).get('x-each'),
+            elData       = util.resolvePath(path, instance.data),
+            children     = eachNode.children;
+
+        createChildNodes(eachNode, elData);
+        prepareChildNodes(children, elData, path);
+    }
+
+    /**
+     * Adds removes child nodes to match the amount of elements in the array
+     *
+     * @param container
+     * @param data
+     */
+    function createChildNodes (container, data) {
+        var children = container.children,
+            templateNode = getTemplateNode(container);
+
+        // if there are too elements the last ones are removed
+        while (children.length > data.length) {
+            container.removeChild(children[children.length - 1]);
+        }
+
+        // the first element is cloned and appended at the end until
+        // the number of children matches the amount of items in the array
+        while (children.length < data.length) {
+            var clone = templateNode.cloneNode(true);
+            container.appendChild(clone);
+        }
+    }
+
+    /**
+     * Updates the path of child nodes of a x-each node
+     *
+     * @param children
+     * @param data
+     * @param path
+     */
+    function prepareChildNodes (children, data, path) {
+        each(data, function (childData, childIndex) {
+            var childNode   = children[childIndex],
+                $$          = util.getQueryEngine(childNode),
+                childBinds  = $$('[x-bind]'),
+                childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
+
+            if (attr(childNode).has('x-bind')) {
+                childBinds.push(childNode);
+            }
+            each(childBinds, function (childBind) {
+                setBindingPath(childBind, path, childIndex);
+            });
+
+            if (childEach) {
+                setEachPath(childEach, path, childIndex);
+                prepareEachNode(childEach);
+            }
+        });
+    }
+
+    /**
+     * Returns the template node of a x-each node
+     *
+     * @param container
+     * @return Template node
+     */
+    function getTemplateNode(container) {
+        container.pflockTemplateNode = container.pflockTemplateNode || container.children[0];
+        if (!container.pflockTemplateNode) {
+            throw new Error('x-each needs a template node');
+        }
+        return container.pflockTemplateNode;
+    }
+
+    /**
+     * Updates the each path of sub x-each node
+     *
+     * @param el
+     * @param prefix
+     * @param index
+     */
+    function setEachPath (el, prefix, index) {
+        var path = attr(el).get('x-each');
+        attr(el).set('x-each', replaceIndex(prefix, index, path));
+    }
+
+    /**
+     * Update the binding path of a node in a x-each
+     *
+     * @param el
+     * @param prefixPath
+     * @param index
+     */
+    function setBindingPath (el, prefixPath, index) {
+        var binding     = util.parseXBind(el),
+            attribute   = binding.attribute ? binding.attribute + ':' : '',
+            newBinding  = attribute + replaceIndex(prefixPath, index, binding.path);
+       attr(el).set('x-bind', newBinding);
+    }
+
+    /**
+     * Replace an index of a path
+     *
+     * @param prefix
+     * @param index
+     * @param path
+     * @return {*}
+     */
+    function replaceIndex(prefix, index, path) {
+        if (path.indexOf(prefix) === 0) {
+            var restPath = path.substr(prefix.length);
+            return prefix + restPath.replace(/^\.[^\.]/, '.' + index);
+        }
+        return path;
+    }
+
+    /**
+     * Gets the nesting level of DOM Element.
+     * - Required for sorting processing order of x-each
+     *
+     * @param el
+     * @param n
+     * @return {*}
+     */
+    function getNestingLevel (el, n) {
+        n = n || 0;
+        if (el.parentNode) {
+            return getNestingLevel(el.parentNode, n + 1);
+        }
+        return n;
+    }
+
+    /**
+     * Compare function to sort DOM elements by nesting level
+     *
+     * @param el1
+     * @param el2
+     * @return {*}
+     */
+    function cmpNestingLevel(el1, el2) {
+        return getNestingLevel(el1) - getNestingLevel(el2);
+    }
+};
+
+});
+require.register("pflock/src/plugins/x-bind.js", function(exports, require, module){
+var each = require('each'),
+    attr = require('attr'),
+    val  = require('val'),
+    util = require('../util');
+
+/**
+ * Pflock plugin: provides x-bind syntax
+ *
+ * @param instance
+ */
+module.exports = function (instance) {
+    'use strict';
+
+    var $ = util.getQueryEngine(instance.element);
+
+    instance.on('init', setupEvents);
+    instance.on('write', function () {
+        each(util.toPathValueHash(instance.data), writeToDocument);
+    });
+
+    /**
+     * Adds the required event listeners
+     */
+    function setupEvents () {
+        var events = instance.options.events;
+        each(events, function (eventName) {
+            instance.element.addEventListener(eventName, function (event) {
+                if (util.getEventTarget(event).attributes['x-bind'] !== undefined) {
+                    handleEvent(event);
+                }
+            });
+        });
     }
 
     /**
@@ -811,15 +1175,13 @@ function pflock (element, data, options) {
      * @param event
      */
     function handleEvent (event) {
-        var target  = getEventTarget(event),
-            binding = getElementBinding(target),
+        var target  = util.getEventTarget(event),
+            binding = util.parseXBind(target),
             value   = readElement(target, binding.attribute);
-        updateDocument(value, binding.path, binding.element);
+        writeToDocument(value, binding.path, binding.element);
 
-        if (options.updateData) {
-            toData(binding.path, value);
-        }
-        api.emit('changed', binding.path, value);
+        instance.emit('document-change', binding.path, value);
+        event.stopPropagation();
     }
 
     /**
@@ -839,7 +1201,25 @@ function pflock (element, data, options) {
         if (attribute === '') {
             return el.innerHTML;
         }
-        return attr(el, attribute);
+        return attr(el).get(attribute);
+    }
+
+    /**
+     * Writes a value to all elements bound to path
+     *
+     * @param value
+     * @param path
+     * @param src
+     */
+    function writeToDocument (value, path, src) {
+        each($('[x-bind]'), function (el) {
+            if (el !== src) {
+                var currentBinding = util.parseXBind(el);
+                if (path === currentBinding.path) {
+                    writeToElement(el, value);
+                }
+            }
+        });
     }
 
     /**
@@ -849,7 +1229,7 @@ function pflock (element, data, options) {
      * @param value
      */
     function writeToElement(el, value) {
-        var binding = getElementBinding(el),
+        var binding = util.parseXBind(el),
             attribute = binding.attribute;
 
         if (attribute === 'value') {
@@ -861,153 +1241,20 @@ function pflock (element, data, options) {
         } else if(attribute === '') {
             el.innerHTML = value;
         } else {
-            attr(el, attribute, value);
+            attr(el).set(attribute, value);
         }
     }
-
-    /**
-     * Writes a value to all elements bound to path
-     *
-     * @param value
-     * @param path
-     * @param src
-     */
-    function updateDocument (value, path, src) {
-        each($('[x-bind]'), function (el) {
-            if (el !== src) {
-                var currentBinding = getElementBinding(el);
-                if (path === currentBinding.path) {
-                    writeToElement(el, value);
-                }
-            }
-        });
-    }
-
-    /**
-     * Writes a value back to the data object
-     *
-     * @param path
-     * @param value
-     */
-    function toData (path, value) {
-        var pathParts = path.split(/\./),
-            obj = data,
-            part;
-
-        while (pathParts.length > 1) {
-            part = pathParts.shift();
-            obj = obj[part] || (obj = obj[part] = {});
-        }
-        obj[pathParts.shift()] = value;
-    }
-
-    /**
-     * Gets the element binding definition
-     *
-     * @param el
-     * @return {Object}
-     */
-    function getElementBinding(el) {
-        var bindValue       = el.attributes['x-bind'].value,
-            bindParts       = bindValue.split(/:/),
-            attribute       = bindParts.length > 1 ? bindParts.shift(): '',
-            path            = bindParts.shift();
-        return {
-            attribute: attribute,
-            path: path,
-            element: el
-        };
-    }
-
-    /**
-     * Adds the required event listeners
-     */
-    function setupEvents () {
-        each(options.events, function (eventName) {
-            element.addEventListener(eventName, function (event) {
-                if (getEventTarget(event).attributes['x-bind'] !== undefined) {
-                    handleEvent(event);
-                }
-            });
-        });
-    }
-
-    /**
-     * Checks if obj is iterable using each
-     *
-     * @param obj
-     * @return {Boolean}
-     */
-    function isIterable (obj) {
-        return obj instanceof Array || obj === Object(obj);
-    }
-
-    /**
-     * Converts the object data to a hash with path and value
-     *
-     * Example:
-     *  toPathValue({user: 'test', foo: {bla: 'word'}})
-     * Returns:
-     *  {
-     *      'user': 'test',
-     *      'foo.bla': 'word'
-     *  }
-     *
-     * @param data
-     * @return {Object}
-     */
-    function toPathValueHash (data) {
-        var result = {};
-        function convert (obj, path) {
-            each(obj, function (item, key) {
-                var itemPath = (path ? path + '.' : '') + key;
-                if (isIterable(item)) {
-                    convert(item, itemPath);
-                } else {
-                    result[itemPath] = item;
-                }
-            });
-        }
-        convert(data);
-        return result;
-    }
-
-    /**
-     * Get querySelectorAll with jQuery fallback, if available
-     *
-     * @return function
-     */
-    function getQueryEngine () {
-        if (element.querySelectorAll) {
-            return function (selector) {
-                return element.querySelectorAll(selector);
-            };
-        }
-        return function (selector) {
-            return window.$(element).find(selector).get();
-        };
-    }
-
-    /**
-     * Returns the target of an event
-     *
-     * @param event
-     * @return {*|Object}
-     */
-    function getEventTarget (event) {
-        return event.target || event.srcElement;
-    }
-}
+};
 
 });
-require.alias("manuelstofer-each/index.js", "pflock/deps/each/index.js");
-
 require.alias("nickjackson-val/index.js", "pflock/deps/val/index.js");
-
-require.alias("manuelstofer-extend/index.js", "pflock/deps/extend/index.js");
-require.alias("manuelstofer-each/index.js", "manuelstofer-extend/deps/each/index.js");
 
 require.alias("matthewp-attr/index.js", "pflock/deps/attr/index.js");
 
 require.alias("component-emitter/index.js", "pflock/deps/emitter/index.js");
+
+require.alias("manuelstofer-each/index.js", "pflock/deps/each/index.js");
+
+require.alias("manuelstofer-extend/index.js", "pflock/deps/extend/index.js");
+require.alias("manuelstofer-each/index.js", "manuelstofer-extend/deps/each/index.js");
 
