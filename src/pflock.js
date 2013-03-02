@@ -4,7 +4,8 @@ var each    = require('each'),
     attr    = require('attr'),
     val     = require('val'),
     emitter = require('emitter'),
-    extend  = require('extend');
+    extend  = require('extend'),
+    resolvr = require('resolvr');
 
 exports = module.exports = pflock;
 
@@ -85,15 +86,7 @@ function pflock (element, data, options) {
      */
     function toData (path, value) {
         if (instance.options.updateData) {
-            var pathParts = path.split(/\./),
-                obj = instance.data,
-                part;
-
-            while (pathParts.length > 1) {
-                part = pathParts.shift();
-                obj = obj[part] || (obj = obj[part] = {});
-            }
-            obj[pathParts.shift()] = value;
+            resolvr.set(instance.data, path, value);
         }
         instance.emit('changed', path, value);
     }
