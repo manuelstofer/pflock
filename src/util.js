@@ -55,9 +55,9 @@ function isIterable (obj) {
  *  toPathValue({user: 'test', foo: {bla: 'word'}})
  * Returns:
  *  {
-     *      'user': 'test',
-     *      'foo.bla': 'word'
-     *  }
+ *      'user': 'test',
+ *      'foo.bla': 'word'
+ *  }
  *
  * @param data
  * @return {Object}
