@@ -1,7 +1,7 @@
 {
     "name": "pflock",
     "description": "Two way binding",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "keywords": [],
     "dependencies": {
         "nickjackson/val":      "0.1.0",
