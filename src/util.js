@@ -45,7 +45,7 @@ function getQueryEngine (from) {
  * @return {Boolean}
  */
 function isIterable (obj) {
-    return obj instanceof Array || obj === Object(obj);
+    return obj instanceof Array || Object.prototype.toString.call(obj) === '[object Object]';
 }
 
 /**
