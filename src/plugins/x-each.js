@@ -137,7 +137,7 @@ module.exports = function (instance) {
     function replaceIndex(prefix, index, path) {
         if (path.indexOf(prefix) === 0) {
             var restPath = path.substr(prefix.length);
-            return prefix + restPath.replace(/^\.[^\.]/, '.' + index);
+            return prefix + restPath.replace(/^\.[^\.]+/, '.' + index);
         }
         return path;
     }
