@@ -26,7 +26,8 @@ describe('pflock', function () {
                 checked:        true,
                 selected:       '2',
                 text:           'bla',
-                editable:       'edit here'
+                editable:       'edit here',
+                date:           new Date('1984-10-16')
             }
         };
     });
@@ -37,6 +38,7 @@ describe('pflock', function () {
         el.find('.user-checked').text().should.equal(data.user.checked.toString());
         el.find('.user-text').text().should.equal(data.user.text);
         el.find('.user-editable').text().should.equal(data.user.editable);
+        el.find('.user-date').text().indexOf('Tue Oct 16 1984').should.equal(0);
 
         (!!el.find('.input-user-checked').prop('checked')).should.equal(data.user.checked);
     };
