@@ -69,6 +69,17 @@
 
 
 </div>
+
+
+<div id="nested">
+    <div id="outer-pflock">
+        <input type="text" id="outer-title" x-bind="value:title"/>
+        <div id="inner-pflock">
+            <input type="text" id="inner-title" x-bind="value:title"/>
+        </div>
+    </div>
+</div>
+
 <div id="mocha"></div>
 <script src="jquery.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>

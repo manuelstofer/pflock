@@ -63,6 +63,12 @@ describe('pflock', function () {
             String(userNameStatus.text()).should.equal('changed');
         });
 
+        it('should update the document when data changes changes', function () {
+            data.user.name = 'changed-data';
+            bindings.toDocument();
+            el.find('.input-user-name').val().should.equal('changed-data');
+        });
+
         it('should update the data when the document changes', function () {
             var userName = el.find('.input-user-name');
             userName.val('changed');
@@ -238,6 +244,53 @@ describe('pflock', function () {
                     $(this).text().should.equal(data.users[outerIndex].pets[innerIndex]);
                 });
             });
+        });
+    });
+
+    describe('nested pflock', function () {
+
+        it('should not affect other nested instances', function () {
+
+            var outerEl = document.getElementById('outer-pflock'),
+                innerEl = document.getElementById('inner-pflock'),
+
+                outerData = {
+                    title: 'outer'
+                },
+                innerData = {
+                    title: 'inner'
+                },
+                outerBindings = pflock(outerEl, outerData),
+                innerBindings = pflock(innerEl, innerData),
+                outerTitle = document.getElementById('outer-title'),
+                innerTitle = document.getElementById('inner-title');
+
+            outerTitle.value.should.equal('outer');
+            innerTitle.value.should.equal('inner');
+
+            outerTitle.value = 'changed-outer';
+            triggerEvent(outerTitle, 'input');
+            outerData.title.should.equal('changed-outer');
+            innerTitle.value.should.equal('inner');
+
+            outerData.title = 'outer-changed-again';
+            outerBindings.toDocument();
+
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('inner');
+
+
+            innerTitle.value = 'changed-inner';
+            triggerEvent(innerTitle, 'input');
+            innerData.title.should.equal('changed-inner');
+
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('changed-inner');
+
+            innerData.title = 'inner-changed-again';
+            innerBindings.toDocument();
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('inner-changed-again');
         });
     });
 });

@@ -2,7 +2,6 @@
 
 var each    = require('each'),
     attr    = require('attr'),
-    val     = require('val'),
     emitter = require('emitter'),
     extend  = require('extend'),
     resolvr = require('resolvr');
@@ -34,6 +33,7 @@ var defaults = {
 function pflock (element, data, options) {
     'use strict';
 
+    element.isPflockRoot = true;
     element = element || document.body;
     options = extend({}, defaults, options);
 

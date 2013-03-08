@@ -1,6 +1,5 @@
 var each = require('each'),
     attr = require('attr'),
-    val  = require('val'),
     util = require('../util');
 
 /**
@@ -59,7 +58,7 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 return el.checked;
             }
-            return val(el).value();
+            return el.value;
         }
         if (attribute === '') {
             return el.innerHTML;
@@ -99,7 +98,7 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 el.checked = !!value;
             } else {
-                val(el).value(value);
+                el.value = value;
             }
         } else if(attribute === '') {
             el.innerHTML = value;

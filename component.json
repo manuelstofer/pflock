@@ -4,7 +4,6 @@
     "version": "0.5.1",
     "keywords": [],
     "dependencies": {
-        "nickjackson/val":      "0.1.0",
         "matthewp/attr":        "*",
         "component/emitter":    "*",
         "manuelstofer/each":    "*",

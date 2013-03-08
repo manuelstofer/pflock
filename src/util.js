@@ -22,6 +22,31 @@ function getEventTarget (event) {
 }
 
 /**
+ * Returns the pflock root node of a element,
+ * (The DOM Element the pflock instance is bound to)
+ * @param el
+ */
+function getPflockRootElement (el) {
+    if (el.isPflockRoot === true) {
+        return el;
+    } else if (el.parentNode) {
+        return getPflockRootElement(el.parentNode);
+    }
+    return undefined;
+}
+
+function filterSamePflockRoot (elements, root) {
+    if (!root) { return elements; }
+    var results = [];
+    for (var i = 0; i < elements.length; i++) {
+        if (getPflockRootElement(elements[i]) === root) {
+            results.push(elements[i]);
+        }
+    }
+    return results;
+}
+
+/**
  * Get querySelectorAll with jQuery fallback, if available
  *
  * @param from scope of the query (default to element)
@@ -30,11 +55,17 @@ function getEventTarget (event) {
 function getQueryEngine (from) {
     if (from.querySelectorAll) {
         return function (selector) {
-            return [].slice.call(from.querySelectorAll(selector)) || [];
+            return filterSamePflockRoot(
+                [].slice.call(from.querySelectorAll(selector)) || [],
+                getPflockRootElement(from)
+            );
         };
     }
     return function (selector) {
-        return window.$(from).find(selector).get();
+        return filterSamePflockRoot(
+            window.$(from).find(selector).get(),
+            getPflockRootElement(from)
+        );
     };
 }
 
