@@ -101,7 +101,9 @@ module.exports = function (instance) {
                 el.value = value;
             }
         } else if(attribute === '') {
-            el.innerHTML = value;
+            if (el.innerHTML != value) {
+                el.innerHTML = value;
+            }
         } else {
             attr(el).set(attribute, value);
         }
