@@ -14,7 +14,8 @@ var defaults = {
         'checked',
         'selected',
         'input',
-        'change'
+        'change',
+        'read'
     ],
     plugins: [
         './plugins/x-each',
