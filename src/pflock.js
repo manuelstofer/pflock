@@ -1,6 +1,7 @@
 /*global module*/
 
 var each    = require('each'),
+    event   = require('event'),
     attr    = require('attr'),
     emitter = require('emitter'),
     extend  = require('extend'),
@@ -49,6 +50,11 @@ function pflock (element, data, options) {
 
     each(options.plugins, function (plugin) {
         require(plugin)(instance);
+    });
+
+
+    event.bind(instance.element, 'read', function () {
+        instance.emit('read');
     });
 
     instance.emit('init');

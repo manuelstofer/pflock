@@ -1,5 +1,6 @@
 var each = require('each'),
     attr = require('attr'),
+    event = require('event'),
     util = require('../util');
 
 /**
@@ -23,7 +24,7 @@ module.exports = function (instance) {
     function setupEvents () {
         var events = instance.options.events;
         each(events, function (eventName) {
-            instance.element.addEventListener(eventName, function (event) {
+            event.bind(instance.element, eventName, function (event) {
                 if (util.getEventTarget(event).attributes['x-bind'] !== undefined) {
                     handleEvent(event);
                 }

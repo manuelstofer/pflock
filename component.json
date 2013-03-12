@@ -1,21 +1,22 @@
 {
-    "name": "pflock",
-    "description": "Two way binding",
-    "version": "0.5.2",
-    "keywords": [],
-    "dependencies": {
-        "matthewp/attr":        "*",
-        "component/emitter":    "*",
-        "manuelstofer/each":    "*",
-        "manuelstofer/extend":  "*",
-        "manuelstofer/resolvr": "*"
-    },
-    "development": {},
-    "scripts": [
-        "index.js",
-        "src/pflock.js",
-        "src/util.js",
-        "src/plugins/x-each.js",
-        "src/plugins/x-bind.js"
-    ]
+  "name": "pflock",
+  "description": "Two way binding",
+  "version": "0.5.2",
+  "keywords": [],
+  "dependencies": {
+    "matthewp/attr": "*",
+    "component/emitter": "*",
+    "manuelstofer/each": "*",
+    "manuelstofer/extend": "*",
+    "manuelstofer/resolvr": "*",
+    "component/event": "*"
+  },
+  "development": {},
+  "scripts": [
+    "index.js",
+    "src/pflock.js",
+    "src/util.js",
+    "src/plugins/x-each.js",
+    "src/plugins/x-bind.js"
+  ]
 }
