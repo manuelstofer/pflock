@@ -247,6 +247,27 @@ describe('pflock', function () {
         });
     });
 
+    describe('x-each dom-changes', function () {
+
+        beforeEach(function () {
+            data = {
+               list: [10,20,30]
+            };
+            el = document.getElementById('each-dom-changes').cloneNode(true);
+            document.body.appendChild(el);
+        });
+
+        it('should render correct data and structure', function () {
+            bindings = pflock(el, data);
+            var firstEl = el.querySelectorAll('li')[0];
+            firstEl.parentNode.removeChild(firstEl);
+            var readData = bindings.fromDocument();
+            readData.list.length.should.equal(2);
+            readData.list[0].should.equal(20);
+            readData.list[1].should.equal(30);
+        });
+    });
+
     describe('nested pflock', function () {
 
         it('should not affect other nested instances', function () {

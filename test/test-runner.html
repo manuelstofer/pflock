@@ -24,6 +24,13 @@
     <ul class="each-users" x-each="users"></ul>
 </div>
 
+
+<div id="each-dom-changes">
+    <ul x-each="list" id="each-dom-changes-list">
+        <li x-bind="list.x"></li>
+    </ul>
+</div>
+
 <div class="nested-each">
     <ul class="outer" x-each="users">
         <li>

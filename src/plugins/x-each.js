@@ -2,7 +2,8 @@
 var attr    = require('attr'),
     each    = require('each'),
     util    = require('../util'),
-    resolve = require('resolvr').resolve;
+    resolvr = require('resolvr'),
+    resolve = resolvr.resolve;
 
 /**
  * Pflock plugin that provides the x-each syntax
@@ -14,9 +15,32 @@ module.exports = function (instance) {
     var $ = util.getQueryEngine(instance.element);
 
     instance.on('write', prepareEachNodes);
+    instance.on('read', readEachNodes);
+
+    function readEachNodes () {
+        each($('[x-each]').sort(cmpNestingLevel), readEachNode);
+    }
 
     function prepareEachNodes () {
         each($('[x-each]').sort(cmpNestingLevel), prepareEachNode);
+    }
+
+
+    function readEachNode(eachNode) {
+        var path         = attr(eachNode).get('x-each'),
+            originalData = resolve(instance.data, path),
+            result       = [];
+
+        each(eachNode.children, function (child, index) {
+            if (typeof child.pflockNodeIndex !== 'undefined') {
+                result.push(originalData[child.pflockNodeIndex]);
+            } else {
+                result.push({});
+            }
+            child.pflockNodeIndex = index;
+        });
+
+        resolvr.set(instance.data, path, result);
     }
 
     /**
@@ -71,6 +95,8 @@ module.exports = function (instance) {
                 $$          = util.getQueryEngine(childNode),
                 childBinds  = $$('[x-bind]'),
                 childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
+
+            childNode.pflockNodeIndex = childIndex;
 
             if (attr(childNode).has('x-bind')) {
                 childBinds.push(childNode);
