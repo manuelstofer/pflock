@@ -102,7 +102,7 @@ module.exports = function (instance) {
                 el.value = value;
             }
         } else if(attribute === '') {
-            if (el.innerHTML != value) {
+            if (el.innerHTML !== value) {
                 el.innerHTML = value;
             }
         } else {

@@ -27,12 +27,15 @@ function getEventTarget (event) {
  * @param el
  */
 function getPflockRootElement (el) {
-    if (el.isPflockRoot === true) {
-        return el;
-    } else if (el.parentNode) {
-        return getPflockRootElement(el.parentNode);
+
+    if (!el.parentNode) {
+        return undefined;
+
+    } else if (el.parentNode.isPflockRoot === true) {
+        return el.parentNode;
     }
-    return undefined;
+
+    return getPflockRootElement(el.parentNode);
 }
 
 function filterSamePflockRoot (elements, root) {
@@ -49,22 +52,22 @@ function filterSamePflockRoot (elements, root) {
 /**
  * Get querySelectorAll with jQuery fallback, if available
  *
- * @param from scope of the query (default to element)
+ * @param root scope of the query (default to element)
  * @return function
  */
-function getQueryEngine (from) {
-    if (from.querySelectorAll) {
+function getQueryEngine (root) {
+    if (root.querySelectorAll) {
         return function (selector) {
             return filterSamePflockRoot(
-                [].slice.call(from.querySelectorAll(selector)) || [],
-                getPflockRootElement(from)
+                [].slice.call(root.querySelectorAll(selector)) || [],
+                root
             );
         };
     }
     return function (selector) {
         return filterSamePflockRoot(
-            window.$(from).find(selector).get(),
-            getPflockRootElement(from)
+            window.$(root).find(selector).get(),
+            root
         );
     };
 }

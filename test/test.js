@@ -220,6 +220,30 @@ describe('pflock', function () {
         });
     });
 
+    describe('x-each indexes', function () {
+        var data,
+            el,
+            bindings;
+
+        beforeEach(function () {
+            data = {
+                numbers: [2,3]
+            };
+            el = $('.x-each-indexes:first').clone(false);
+            $('body').append(el);
+        });
+
+        it('does update correct', function () {
+            bindings = pflock(el.get(0), data);
+            bindings.toDocument({numbers: [1,2,3]});
+            var elements = $(el).find('li');
+            elements.each(function (index, element) {
+                $(element).attr('x-id').should.equal((index + 1).toString(10));
+            });
+            elements.length.should.equal(3);
+        });
+    });
+
     describe('nested x-each', function () {
         var data,
             el,

@@ -24,6 +24,12 @@
     <ul class="each-users" x-each="users"></ul>
 </div>
 
+<div class="x-each-indexes">
+    <ul x-each="numbers">
+        <li x-bind="x-id:numbers.x"></li>
+    </ul>
+</div>
+
 
 <div id="each-dom-changes">
     <ul x-each="list" id="each-dom-changes-list">
@@ -35,9 +41,11 @@
     <ul class="outer" x-each="users">
         <li>
             <span x-bind="users.x.name"></span>
-            <ul class="inner" x-each="users.x.pets">
-                <li x-bind="users.x.pets.x"></li>
-            </ul>
+            <div class="inner">
+                <ul x-each="users.x.pets">
+                    <li x-bind="users.x.pets.x"></li>
+                </ul>
+            </div>
         </li>
     </ul>
 </div>

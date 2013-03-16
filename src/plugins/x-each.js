@@ -28,10 +28,16 @@ module.exports = function (instance) {
 
     function readEachNode(eachNode) {
         var path         = attr(eachNode).get('x-each'),
-            originalData = resolve(instance.data, path),
-            result       = [];
+            originalData = resolve(instance.data, path) || [],
+            result       = [],
+            hasChanged   = eachNode.children !== originalData.length;
 
         each(eachNode.children, function (child, index) {
+
+            if (child.pflockNodeIndex !== index) {
+                hasChanged = true;
+            }
+
             if (typeof child.pflockNodeIndex !== 'undefined') {
                 result.push(originalData[child.pflockNodeIndex]);
             } else {
@@ -40,7 +46,9 @@ module.exports = function (instance) {
             child.pflockNodeIndex = index;
         });
 
-        resolvr.set(instance.data, path, result);
+        if (hasChanged) {
+            instance.emit('document-change', path, result);
+        }
     }
 
     /**
