@@ -287,8 +287,8 @@ describe('pflock', function () {
             firstEl.parentNode.removeChild(firstEl);
             var readData = bindings.fromDocument();
             readData.list.length.should.equal(2);
-            readData.list[0].should.equal(20);
-            readData.list[1].should.equal(30);
+            readData.list[0].should.equal("20");
+            readData.list[1].should.equal("30");
         });
     });
 

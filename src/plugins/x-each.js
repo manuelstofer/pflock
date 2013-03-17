@@ -47,6 +47,7 @@ module.exports = function (instance) {
         });
 
         if (hasChanged) {
+            prepareChildNodes(eachNode, path);
             instance.emit('document-change', path, result);
         }
     }
@@ -59,11 +60,10 @@ module.exports = function (instance) {
      */
     function prepareEachNode (eachNode) {
         var path         = attr(eachNode).get('x-each'),
-            elData       = resolve(instance.data, path),
-            children     = eachNode.children;
+            elData       = resolve(instance.data, path);
         if (elData) {
             createChildNodes(eachNode, elData);
-            prepareChildNodes(children, elData, path);
+            prepareChildNodes(eachNode, path);
         }
     }
 
@@ -77,7 +77,7 @@ module.exports = function (instance) {
         var children = container.children,
             templateNode = getTemplateNode(container);
 
-        // if there are too elements the last ones are removed
+        // if there are too many elements the last ones are removed
         while (children.length > data.length) {
             container.removeChild(children[children.length - 1]);
         }
@@ -93,14 +93,13 @@ module.exports = function (instance) {
     /**
      * Updates the path of child nodes of a x-each node
      *
-     * @param children
-     * @param data
+     * @param container
      * @param path
      */
-    function prepareChildNodes (children, data, path) {
-        each(data, function (childData, childIndex) {
-            var childNode   = children[childIndex],
-                $$          = util.getQueryEngine(childNode),
+    function prepareChildNodes (container, path) {
+        var children = container.children;
+        each(children, function (childNode, childIndex) {
+            var $$= util.getQueryEngine(childNode),
                 childBinds  = $$('[x-bind]'),
                 childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
 

@@ -18,6 +18,8 @@ module.exports = function (instance) {
         each(util.toPathValueHash(instance.data), writeToDocument);
     });
 
+    instance.on('read', readFromDocument);
+
     /**
      * Adds the required event listeners
      */
@@ -41,10 +43,18 @@ module.exports = function (instance) {
         var target  = util.getEventTarget(event),
             binding = util.parseXBind(target),
             value   = readElement(target, binding.attribute);
-        writeToDocument(value, binding.path, binding.element);
 
+        writeToDocument(value, binding.path, binding.element);
         instance.emit('document-change', binding.path, value);
         event.stopPropagation();
+    }
+
+    function readFromDocument () {
+        each($('[x-bind]'), function (el) {
+            var binding = util.parseXBind(el),
+                value   = readElement(el, binding.attribute);
+            instance.emit('document-change', binding.path, value);
+        });
     }
 
     /**
