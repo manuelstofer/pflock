@@ -206,290 +206,6 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("nickjackson-val/index.js", function(exports, require, module){
-/**
- * Initalizes and returns the correct API
- * for the specified `el`.
- *
- * @param {Element} el
- * @return {Mixed}
- * @api public
- */
-
-module.exports = function Val(el) {
-  if (!el) throw Error('no el specified');
-
-  var fn;
-  var type = nodeType(el);
-
-  switch (type) {
-    case 'text':
-      fn = new TextAPI(el);
-      break;
-
-    case 'checkbox':
-      fn = new CheckboxAPI(el);
-      break;
-
-    case 'textarea':
-      fn = new TextareaAPI(el);
-      break;
-
-    case 'select':
-      fn = new SelectAPI(el);
-      break;
-
-    default:
-      throw new Error(el.nodeName + ' not supported!');
-  }
-
-  fn.type = type;
-  return fn;
-}
-
-
-/**
- * Returns a single string to identify the
- * current `el`
- *
- * @param {Element} el
- * @return {String} node
- * @api private
- */
-
-function nodeType(el){
-  var node = el.nodeName.toLowerCase();
-  var type = el.type;
-
-  if (node == 'select') return 'select';
-  if (node == 'textarea') return 'textarea';
-  if (node == 'input') {
-    if (type == 'text') return 'text';
-    if (type == 'checkbox') return 'checkbox';
-  }
-  return;
-}
-
-
-/**
- * Initalizes a new `TextAPI` with `el`
- * `<input type="text">`
- *
- * @param {Element} el
- * @api private
- */
-
-function TextAPI(el){
-  this.el = el;
-}
-
-
-/**
- * Getter/Setter for the value of textbox:
- * - Set by providing `string`
- * - Get by providing no args
- *
- * @param {String} string
- * @return {TextAPI}
- * @api public
- */
-
-TextAPI.prototype.value = function(string){
-  if (typeof string === 'undefined'){
-    return this.el.value;
-  }
-
-  this.el.setAttribute('value', string);
-  return this;
-}
-
-
-
-
-/**
- * Initalizes a new `CheckboxAPI` with `el`
- * `<input type="checkbox">`
- *
- * @param {Element} el
- * @api private
- */
-
-function CheckboxAPI(el){
-  this.el = el;
-}
-
-
-/**
- * Getter/Setter for the value of a checkbox:
- * - Set by providing `string`
- * - Gets element value or true if item is checked
- *   otherwise it is undefined
- *
- * @param {String} string
- * @return {CheckboxAPI} for chaining
- * @api public
- */
-
-CheckboxAPI.prototype.value = function(string){
-  if (typeof string === 'undefined'){
-    return this.checked() ? this.el.value || true : undefined;
-  }
-
-  this.el.setAttribute('value', string);
-  return this;
-}
-
-
-/**
- * Getter/Setter for the checked state of a checkbox:
- * - Set by providing a boolean to `state`
- * - Get by providing no args
- *
- * @param {Boolean} state
- * @return {CheckboxAPI} for chaining
- * @api public
- */
-
-CheckboxAPI.prototype.checked = function(state){
-  if (typeof state === 'undefined'){
-    return this.el.checked ? true : false
-  }
-
-  if (state == true) {
-    this.el.setAttribute('checked', 'checked');
-  }
-
-  if (state == false) {
-    this.el.removeAttribute('checked');
-  }
-
-  return this;
-}
-
-
-/**
- * Gets the value of a checkbox if it was checked
- *
- * @param {Boolean} state
- * @return {String}
- * @api public
- */
-
-CheckboxAPI.prototype.checkedValue = function(){
-  return this.el.value;
-}
-
-
-/**
- * Initalizes a new `TextareaAPI` with `el`
- * `<textarea>`
- *
- * @param {Element} el
- * @api private
- */
-
-function TextareaAPI(el){
-  this.el = el;
-}
-
-
-/**
- * Getter/Setter for the value of a textarea:
- * - Set by providing `string`
- * - Get by providing no args
- *
- * @param {String} string
- * @return {TextareaAPI}
- * @api public
- */
-
-TextareaAPI.prototype.value = function(string){
-  if (typeof string === 'undefined'){
-    return this.el.value;
-  }
-
-  this.el.value = string;
-  return this;
-}
-
-
-
-
-/**
- * Initalizes a new `SelectAPI` with `el`
- * `<select>`
- *
- * @param {Element} el
- * @api private
- */
-
-function SelectAPI(el){
-  this.el = el;
-  this.options = [];
-
-  // loop through select el option attributes and
-  // find dom <option> and store in options array.
-  for (var i=0; i < el.options.length; i++) {
-    var opt = el.options[i];
-    if (opt.nodeType == 1) {
-      if (opt.selected) this.selected = opt;
-      this.options.push(opt);
-    }
-  };
-}
-
-
-/**
- * Getter/Setter for the selected option:
-
- * @params {string} selector `type`
- * @param {String} string
- * @return {SelectAPI}
- * @api private
- */
-
-SelectAPI.prototype.select = function(type, string) {
-  if (typeof string === 'undefined'){
-    return this.selected[type];
-  }
-
-  this.options.forEach(function(option){
-    option.selected = (option[type] == string);
-  })
-
-  return this;
-}
-
-
-/**
- * Getter/Setter for the value of a select:
- * - Set by providing `string`
- * - Get by providing no args
- *
- * @param {String} string
- * @return {SelectAPI}
- * @api public
- */
-
-SelectAPI.prototype.value = function(string){
-  return this.select.call(this, 'value', string);
-}
-
-
-/**
- * Getter/Setter for the text of a select:
- * - Set by providing `string`
- * - Get by providing no args
- *
- * @param {String} string
- * @return {SelectAPI}
- * @api public
- */
-
-SelectAPI.prototype.text = function(string){
-  return this.select.call(this, 'innerText', string);
-}
-});
 require.register("matthewp-attr/index.js", function(exports, require, module){
 /*
 ** Fallback for older IE without get/setAttribute
@@ -736,6 +452,95 @@ module.exports = function (obj) {
 };
 
 });
+require.register("manuelstofer-resolvr/index.js", function(exports, require, module){
+module.exports = {
+    resolve: resolve,
+    get:     resolve,
+    set:     set
+};
+
+/**
+ * Resolves a path in an object
+ * @param data
+ * @param path
+ * @return {*}
+ */
+function resolve (data, path) {
+    var obj     = data,
+        parts = path.split(/\./);
+
+    if (path === '' || path === '.') {
+        return obj;
+    }
+
+    while (obj && parts.length > 0) {
+        obj = obj[parts.shift()] || undefined;
+    }
+    return obj;
+}
+
+/**
+ * Sets a value at a specified path
+ *
+ * @param data
+ * @param path
+ * @param value
+ */
+function set(data, path, value) {
+    var obj = data,
+        pathParts = path.split(/\./),
+        part;
+
+    while (pathParts.length > 1) {
+        part = pathParts.shift();
+        obj = obj[part] || (obj = obj[part] = {});
+    }
+    obj[pathParts.shift()] = value;
+}
+});
+require.register("component-event/index.js", function(exports, require, module){
+
+/**
+ * Bind `el` event `type` to `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.bind = function(el, type, fn, capture){
+  if (el.addEventListener) {
+    el.addEventListener(type, fn, capture || false);
+  } else {
+    el.attachEvent('on' + type, fn);
+  }
+  return fn;
+};
+
+/**
+ * Unbind `el` event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.unbind = function(el, type, fn, capture){
+  if (el.removeEventListener) {
+    el.removeEventListener(type, fn, capture || false);
+  } else {
+    el.detachEvent('on' + type, fn);
+  }
+  return fn;
+};
+
+});
 require.register("pflock/index.js", function(exports, require, module){
 module.exports = require('./src/pflock');
 
@@ -744,10 +549,11 @@ require.register("pflock/src/pflock.js", function(exports, require, module){
 /*global module*/
 
 var each    = require('each'),
+    event   = require('event'),
     attr    = require('attr'),
-    val     = require('val'),
     emitter = require('emitter'),
-    extend  = require('extend');
+    extend  = require('extend'),
+    resolvr = require('resolvr');
 
 exports = module.exports = pflock;
 
@@ -757,7 +563,8 @@ var defaults = {
         'checked',
         'selected',
         'input',
-        'change'
+        'change',
+        'read'
     ],
     plugins: [
         './plugins/x-each',
@@ -776,6 +583,7 @@ var defaults = {
 function pflock (element, data, options) {
     'use strict';
 
+    element.isPflockRoot = true;
     element = element || document.body;
     options = extend({}, defaults, options);
 
@@ -790,6 +598,11 @@ function pflock (element, data, options) {
 
     each(options.plugins, function (plugin) {
         require(plugin)(instance);
+    });
+
+
+    event.bind(instance.element, 'read', function () {
+        instance.emit('read');
     });
 
     instance.emit('init');
@@ -828,15 +641,7 @@ function pflock (element, data, options) {
      */
     function toData (path, value) {
         if (instance.options.updateData) {
-            var pathParts = path.split(/\./),
-                obj = instance.data,
-                part;
-
-            while (pathParts.length > 1) {
-                part = pathParts.shift();
-                obj = obj[part] || (obj = obj[part] = {});
-            }
-            obj[pathParts.shift()] = value;
+            resolvr.set(instance.data, path, value);
         }
         instance.emit('changed', path, value);
     }
@@ -849,7 +654,6 @@ var attr = require('attr'),
     each = require('each');
 
 module.exports = {
-    resolvePath:        resolvePath,
     getEventTarget:     getEventTarget,
     getQueryEngine:     getQueryEngine,
     isIterable:         isIterable,
@@ -857,25 +661,6 @@ module.exports = {
     parseXBind:         parseXBind
 };
 
-
-/**
- * Resolves a path in the data object
- *
- * @param path
- * @param data
- * @return {*}
- */
-function resolvePath (path, data) {
-    var objects = data,
-        pathParts = path.split(/\./),
-        part;
-    // get the good part of data (theorically an array)
-    while (pathParts.length > 0) {
-        part = pathParts.shift();
-        objects = objects[part] || (objects = objects[part] = {});
-    }
-    return objects;
-}
 
 /**
  * Returns the target of an event
@@ -888,19 +673,53 @@ function getEventTarget (event) {
 }
 
 /**
+ * Returns the pflock root node of a element,
+ * (The DOM Element the pflock instance is bound to)
+ * @param el
+ */
+function getPflockRootElement (el) {
+
+    if (!el.parentNode) {
+        return undefined;
+
+    } else if (el.parentNode.isPflockRoot === true) {
+        return el.parentNode;
+    }
+
+    return getPflockRootElement(el.parentNode);
+}
+
+function filterSamePflockRoot (elements, root) {
+    if (!root) { return elements; }
+    var results = [];
+    for (var i = 0; i < elements.length; i++) {
+        if (getPflockRootElement(elements[i]) === root) {
+            results.push(elements[i]);
+        }
+    }
+    return results;
+}
+
+/**
  * Get querySelectorAll with jQuery fallback, if available
  *
- * @param from scope of the query (default to element)
+ * @param root scope of the query (default to element)
  * @return function
  */
-function getQueryEngine (from) {
-    if (from.querySelectorAll) {
+function getQueryEngine (root) {
+    if (root.querySelectorAll) {
         return function (selector) {
-            return [].slice.call(from.querySelectorAll(selector)) || [];
+            return filterSamePflockRoot(
+                [].slice.call(root.querySelectorAll(selector)) || [],
+                root
+            );
         };
     }
     return function (selector) {
-        return window.$(from).find(selector).get();
+        return filterSamePflockRoot(
+            window.$(root).find(selector).get(),
+            root
+        );
     };
 }
 
@@ -911,7 +730,7 @@ function getQueryEngine (from) {
  * @return {Boolean}
  */
 function isIterable (obj) {
-    return obj instanceof Array || obj === Object(obj);
+    return obj instanceof Array || Object.prototype.toString.call(obj) === '[object Object]';
 }
 
 /**
@@ -921,9 +740,9 @@ function isIterable (obj) {
  *  toPathValue({user: 'test', foo: {bla: 'word'}})
  * Returns:
  *  {
-     *      'user': 'test',
-     *      'foo.bla': 'word'
-     *  }
+ *      'user': 'test',
+ *      'foo.bla': 'word'
+ *  }
  *
  * @param data
  * @return {Object}
@@ -966,7 +785,9 @@ require.register("pflock/src/plugins/x-each.js", function(exports, require, modu
 'use strict';
 var attr    = require('attr'),
     each    = require('each'),
-    util    = require('../util');
+    util    = require('../util'),
+    resolvr = require('resolvr'),
+    resolve = resolvr.resolve;
 
 /**
  * Pflock plugin that provides the x-each syntax
@@ -978,9 +799,41 @@ module.exports = function (instance) {
     var $ = util.getQueryEngine(instance.element);
 
     instance.on('write', prepareEachNodes);
+    instance.on('read', readEachNodes);
+
+    function readEachNodes () {
+        each($('[x-each]').sort(cmpNestingLevel), readEachNode);
+    }
 
     function prepareEachNodes () {
         each($('[x-each]').sort(cmpNestingLevel), prepareEachNode);
+    }
+
+
+    function readEachNode(eachNode) {
+        var path         = attr(eachNode).get('x-each'),
+            originalData = resolve(instance.data, path) || [],
+            result       = [],
+            hasChanged   = eachNode.children !== originalData.length;
+
+        each(eachNode.children, function (child, index) {
+
+            if (child.pflockNodeIndex !== index) {
+                hasChanged = true;
+            }
+
+            if (typeof child.pflockNodeIndex !== 'undefined') {
+                result.push(originalData[child.pflockNodeIndex]);
+            } else {
+                result.push({});
+            }
+            child.pflockNodeIndex = index;
+        });
+
+        if (hasChanged) {
+            prepareChildNodes(eachNode, path);
+            instance.emit('document-change', path, result);
+        }
     }
 
     /**
@@ -991,11 +844,11 @@ module.exports = function (instance) {
      */
     function prepareEachNode (eachNode) {
         var path         = attr(eachNode).get('x-each'),
-            elData       = util.resolvePath(path, instance.data),
-            children     = eachNode.children;
-
-        createChildNodes(eachNode, elData);
-        prepareChildNodes(children, elData, path);
+            elData       = resolve(instance.data, path);
+        if (elData) {
+            createChildNodes(eachNode, elData);
+            prepareChildNodes(eachNode, path);
+        }
     }
 
     /**
@@ -1008,7 +861,7 @@ module.exports = function (instance) {
         var children = container.children,
             templateNode = getTemplateNode(container);
 
-        // if there are too elements the last ones are removed
+        // if there are too many elements the last ones are removed
         while (children.length > data.length) {
             container.removeChild(children[children.length - 1]);
         }
@@ -1024,16 +877,17 @@ module.exports = function (instance) {
     /**
      * Updates the path of child nodes of a x-each node
      *
-     * @param children
-     * @param data
+     * @param container
      * @param path
      */
-    function prepareChildNodes (children, data, path) {
-        each(data, function (childData, childIndex) {
-            var childNode   = children[childIndex],
-                $$          = util.getQueryEngine(childNode),
+    function prepareChildNodes (container, path) {
+        var children = container.children;
+        each(children, function (childNode, childIndex) {
+            var $$= util.getQueryEngine(childNode),
                 childBinds  = $$('[x-bind]'),
                 childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
+
+            childNode.pflockNodeIndex = childIndex;
 
             if (attr(childNode).has('x-bind')) {
                 childBinds.push(childNode);
@@ -1100,7 +954,7 @@ module.exports = function (instance) {
     function replaceIndex(prefix, index, path) {
         if (path.indexOf(prefix) === 0) {
             var restPath = path.substr(prefix.length);
-            return prefix + restPath.replace(/^\.[^\.]/, '.' + index);
+            return prefix + restPath.replace(/^\.[^\.]+/, '.' + index);
         }
         return path;
     }
@@ -1137,7 +991,7 @@ module.exports = function (instance) {
 require.register("pflock/src/plugins/x-bind.js", function(exports, require, module){
 var each = require('each'),
     attr = require('attr'),
-    val  = require('val'),
+    event = require('event'),
     util = require('../util');
 
 /**
@@ -1155,13 +1009,15 @@ module.exports = function (instance) {
         each(util.toPathValueHash(instance.data), writeToDocument);
     });
 
+    instance.on('read', readFromDocument);
+
     /**
      * Adds the required event listeners
      */
     function setupEvents () {
         var events = instance.options.events;
         each(events, function (eventName) {
-            instance.element.addEventListener(eventName, function (event) {
+            event.bind(instance.element, eventName, function (event) {
                 if (util.getEventTarget(event).attributes['x-bind'] !== undefined) {
                     handleEvent(event);
                 }
@@ -1178,10 +1034,18 @@ module.exports = function (instance) {
         var target  = util.getEventTarget(event),
             binding = util.parseXBind(target),
             value   = readElement(target, binding.attribute);
-        writeToDocument(value, binding.path, binding.element);
 
+        writeToDocument(value, binding.path, binding.element);
         instance.emit('document-change', binding.path, value);
         event.stopPropagation();
+    }
+
+    function readFromDocument () {
+        each($('[x-bind]'), function (el) {
+            var binding = util.parseXBind(el),
+                value   = readElement(el, binding.attribute);
+            instance.emit('document-change', binding.path, value);
+        });
     }
 
     /**
@@ -1196,7 +1060,7 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 return el.checked;
             }
-            return val(el).value();
+            return el.value;
         }
         if (attribute === '') {
             return el.innerHTML;
@@ -1236,10 +1100,12 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 el.checked = !!value;
             } else {
-                val(el).value(value);
+                el.value = value;
             }
         } else if(attribute === '') {
-            el.innerHTML = value;
+            if (el.innerHTML !== value) {
+                el.innerHTML = value;
+            }
         } else {
             attr(el).set(attribute, value);
         }
@@ -1247,8 +1113,6 @@ module.exports = function (instance) {
 };
 
 });
-require.alias("nickjackson-val/index.js", "pflock/deps/val/index.js");
-
 require.alias("matthewp-attr/index.js", "pflock/deps/attr/index.js");
 
 require.alias("component-emitter/index.js", "pflock/deps/emitter/index.js");
@@ -1257,4 +1121,8 @@ require.alias("manuelstofer-each/index.js", "pflock/deps/each/index.js");
 
 require.alias("manuelstofer-extend/index.js", "pflock/deps/extend/index.js");
 require.alias("manuelstofer-each/index.js", "manuelstofer-extend/deps/each/index.js");
+
+require.alias("manuelstofer-resolvr/index.js", "pflock/deps/resolvr/index.js");
+
+require.alias("component-event/index.js", "pflock/deps/event/index.js");
 
