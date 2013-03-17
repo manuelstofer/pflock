@@ -3,7 +3,6 @@ var attr = require('attr'),
     each = require('each');
 
 module.exports = {
-    resolvePath:        resolvePath,
     getEventTarget:     getEventTarget,
     getQueryEngine:     getQueryEngine,
     isIterable:         isIterable,
@@ -11,25 +10,6 @@ module.exports = {
     parseXBind:         parseXBind
 };
 
-
-/**
- * Resolves a path in the data object
- *
- * @param path
- * @param data
- * @return {*}
- */
-function resolvePath (path, data) {
-    var objects = data,
-        pathParts = path.split(/\./),
-        part;
-    // get the good part of data (theorically an array)
-    while (pathParts.length > 0) {
-        part = pathParts.shift();
-        objects = objects[part] || (objects = objects[part] = {});
-    }
-    return objects;
-}
 
 /**
  * Returns the target of an event
@@ -42,19 +22,53 @@ function getEventTarget (event) {
 }
 
 /**
+ * Returns the pflock root node of a element,
+ * (The DOM Element the pflock instance is bound to)
+ * @param el
+ */
+function getPflockRootElement (el) {
+
+    if (!el.parentNode) {
+        return undefined;
+
+    } else if (el.parentNode.isPflockRoot === true) {
+        return el.parentNode;
+    }
+
+    return getPflockRootElement(el.parentNode);
+}
+
+function filterSamePflockRoot (elements, root) {
+    if (!root) { return elements; }
+    var results = [];
+    for (var i = 0; i < elements.length; i++) {
+        if (getPflockRootElement(elements[i]) === root) {
+            results.push(elements[i]);
+        }
+    }
+    return results;
+}
+
+/**
  * Get querySelectorAll with jQuery fallback, if available
  *
- * @param from scope of the query (default to element)
+ * @param root scope of the query (default to element)
  * @return function
  */
-function getQueryEngine (from) {
-    if (from.querySelectorAll) {
+function getQueryEngine (root) {
+    if (root.querySelectorAll) {
         return function (selector) {
-            return [].slice.call(from.querySelectorAll(selector)) || [];
+            return filterSamePflockRoot(
+                [].slice.call(root.querySelectorAll(selector)) || [],
+                root
+            );
         };
     }
     return function (selector) {
-        return window.$(from).find(selector).get();
+        return filterSamePflockRoot(
+            window.$(root).find(selector).get(),
+            root
+        );
     };
 }
 
@@ -65,7 +79,7 @@ function getQueryEngine (from) {
  * @return {Boolean}
  */
 function isIterable (obj) {
-    return obj instanceof Array || obj === Object(obj);
+    return obj instanceof Array || Object.prototype.toString.call(obj) === '[object Object]';
 }
 
 /**
@@ -75,9 +89,9 @@ function isIterable (obj) {
  *  toPathValue({user: 'test', foo: {bla: 'word'}})
  * Returns:
  *  {
-     *      'user': 'test',
-     *      'foo.bla': 'word'
-     *  }
+ *      'user': 'test',
+ *      'foo.bla': 'word'
+ *  }
  *
  * @param data
  * @return {Object}

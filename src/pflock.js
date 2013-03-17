@@ -1,10 +1,11 @@
 /*global module*/
 
 var each    = require('each'),
+    event   = require('event'),
     attr    = require('attr'),
-    val     = require('val'),
     emitter = require('emitter'),
-    extend  = require('extend');
+    extend  = require('extend'),
+    resolvr = require('resolvr');
 
 exports = module.exports = pflock;
 
@@ -14,7 +15,8 @@ var defaults = {
         'checked',
         'selected',
         'input',
-        'change'
+        'change',
+        'read'
     ],
     plugins: [
         './plugins/x-each',
@@ -33,6 +35,7 @@ var defaults = {
 function pflock (element, data, options) {
     'use strict';
 
+    element.isPflockRoot = true;
     element = element || document.body;
     options = extend({}, defaults, options);
 
@@ -47,6 +50,11 @@ function pflock (element, data, options) {
 
     each(options.plugins, function (plugin) {
         require(plugin)(instance);
+    });
+
+
+    event.bind(instance.element, 'read', function () {
+        instance.emit('read');
     });
 
     instance.emit('init');
@@ -85,15 +93,7 @@ function pflock (element, data, options) {
      */
     function toData (path, value) {
         if (instance.options.updateData) {
-            var pathParts = path.split(/\./),
-                obj = instance.data,
-                part;
-
-            while (pathParts.length > 1) {
-                part = pathParts.shift();
-                obj = obj[part] || (obj = obj[part] = {});
-            }
-            obj[pathParts.shift()] = value;
+            resolvr.set(instance.data, path, value);
         }
         instance.emit('changed', path, value);
     }

@@ -1,7 +1,9 @@
 'use strict';
 var attr    = require('attr'),
     each    = require('each'),
-    util    = require('../util');
+    util    = require('../util'),
+    resolvr = require('resolvr'),
+    resolve = resolvr.resolve;
 
 /**
  * Pflock plugin that provides the x-each syntax
@@ -13,9 +15,41 @@ module.exports = function (instance) {
     var $ = util.getQueryEngine(instance.element);
 
     instance.on('write', prepareEachNodes);
+    instance.on('read', readEachNodes);
+
+    function readEachNodes () {
+        each($('[x-each]').sort(cmpNestingLevel), readEachNode);
+    }
 
     function prepareEachNodes () {
         each($('[x-each]').sort(cmpNestingLevel), prepareEachNode);
+    }
+
+
+    function readEachNode(eachNode) {
+        var path         = attr(eachNode).get('x-each'),
+            originalData = resolve(instance.data, path) || [],
+            result       = [],
+            hasChanged   = eachNode.children !== originalData.length;
+
+        each(eachNode.children, function (child, index) {
+
+            if (child.pflockNodeIndex !== index) {
+                hasChanged = true;
+            }
+
+            if (typeof child.pflockNodeIndex !== 'undefined') {
+                result.push(originalData[child.pflockNodeIndex]);
+            } else {
+                result.push({});
+            }
+            child.pflockNodeIndex = index;
+        });
+
+        if (hasChanged) {
+            prepareChildNodes(eachNode, path);
+            instance.emit('document-change', path, result);
+        }
     }
 
     /**
@@ -26,11 +60,11 @@ module.exports = function (instance) {
      */
     function prepareEachNode (eachNode) {
         var path         = attr(eachNode).get('x-each'),
-            elData       = util.resolvePath(path, instance.data),
-            children     = eachNode.children;
-
-        createChildNodes(eachNode, elData);
-        prepareChildNodes(children, elData, path);
+            elData       = resolve(instance.data, path);
+        if (elData) {
+            createChildNodes(eachNode, elData);
+            prepareChildNodes(eachNode, path);
+        }
     }
 
     /**
@@ -43,7 +77,7 @@ module.exports = function (instance) {
         var children = container.children,
             templateNode = getTemplateNode(container);
 
-        // if there are too elements the last ones are removed
+        // if there are too many elements the last ones are removed
         while (children.length > data.length) {
             container.removeChild(children[children.length - 1]);
         }
@@ -59,16 +93,17 @@ module.exports = function (instance) {
     /**
      * Updates the path of child nodes of a x-each node
      *
-     * @param children
-     * @param data
+     * @param container
      * @param path
      */
-    function prepareChildNodes (children, data, path) {
-        each(data, function (childData, childIndex) {
-            var childNode   = children[childIndex],
-                $$          = util.getQueryEngine(childNode),
+    function prepareChildNodes (container, path) {
+        var children = container.children;
+        each(children, function (childNode, childIndex) {
+            var $$= util.getQueryEngine(childNode),
                 childBinds  = $$('[x-bind]'),
                 childEach   = attr(childNode).has('x-each') ? childNode : $$('[x-each]')[0];
+
+            childNode.pflockNodeIndex = childIndex;
 
             if (attr(childNode).has('x-bind')) {
                 childBinds.push(childNode);
@@ -135,7 +170,7 @@ module.exports = function (instance) {
     function replaceIndex(prefix, index, path) {
         if (path.indexOf(prefix) === 0) {
             var restPath = path.substr(prefix.length);
-            return prefix + restPath.replace(/^\.[^\.]/, '.' + index);
+            return prefix + restPath.replace(/^\.[^\.]+/, '.' + index);
         }
         return path;
     }

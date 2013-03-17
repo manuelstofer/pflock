@@ -1,6 +1,6 @@
 var each = require('each'),
     attr = require('attr'),
-    val  = require('val'),
+    event = require('event'),
     util = require('../util');
 
 /**
@@ -18,13 +18,15 @@ module.exports = function (instance) {
         each(util.toPathValueHash(instance.data), writeToDocument);
     });
 
+    instance.on('read', readFromDocument);
+
     /**
      * Adds the required event listeners
      */
     function setupEvents () {
         var events = instance.options.events;
         each(events, function (eventName) {
-            instance.element.addEventListener(eventName, function (event) {
+            event.bind(instance.element, eventName, function (event) {
                 if (util.getEventTarget(event).attributes['x-bind'] !== undefined) {
                     handleEvent(event);
                 }
@@ -41,10 +43,18 @@ module.exports = function (instance) {
         var target  = util.getEventTarget(event),
             binding = util.parseXBind(target),
             value   = readElement(target, binding.attribute);
-        writeToDocument(value, binding.path, binding.element);
 
+        writeToDocument(value, binding.path, binding.element);
         instance.emit('document-change', binding.path, value);
         event.stopPropagation();
+    }
+
+    function readFromDocument () {
+        each($('[x-bind]'), function (el) {
+            var binding = util.parseXBind(el),
+                value   = readElement(el, binding.attribute);
+            instance.emit('document-change', binding.path, value);
+        });
     }
 
     /**
@@ -59,7 +69,7 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 return el.checked;
             }
-            return val(el).value();
+            return el.value;
         }
         if (attribute === '') {
             return el.innerHTML;
@@ -99,10 +109,12 @@ module.exports = function (instance) {
             if (el.type === 'checkbox') {
                 el.checked = !!value;
             } else {
-                val(el).value(value);
+                el.value = value;
             }
         } else if(attribute === '') {
-            el.innerHTML = value;
+            if (el.innerHTML !== value) {
+                el.innerHTML = value;
+            }
         } else {
             attr(el).set(attribute, value);
         }

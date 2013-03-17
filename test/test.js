@@ -8,11 +8,6 @@ pflock($('.document').get(0), {
     ]
 });
 
-describe('test setup', function () {
-    it('should work', function () {
-        true.should.not.equal(false);
-    });
-});
 
 describe('pflock', function () {
 
@@ -26,7 +21,8 @@ describe('pflock', function () {
                 checked:        true,
                 selected:       '2',
                 text:           'bla',
-                editable:       'edit here'
+                editable:       'edit here',
+                date:           new Date('1984-10-16')
             }
         };
     });
@@ -37,6 +33,7 @@ describe('pflock', function () {
         el.find('.user-checked').text().should.equal(data.user.checked.toString());
         el.find('.user-text').text().should.equal(data.user.text);
         el.find('.user-editable').text().should.equal(data.user.editable);
+        el.find('.user-date').text().indexOf('Tue Oct 16 1984').should.equal(0);
 
         (!!el.find('.input-user-checked').prop('checked')).should.equal(data.user.checked);
     };
@@ -59,6 +56,12 @@ describe('pflock', function () {
             userNameInput.val('changed');
             triggerEvent(userNameInput.get(0), 'input');
             String(userNameStatus.text()).should.equal('changed');
+        });
+
+        it('should update the document when data changes changes', function () {
+            data.user.name = 'changed-data';
+            bindings.toDocument();
+            el.find('.input-user-name').val().should.equal('changed-data');
         });
 
         it('should update the data when the document changes', function () {
@@ -112,130 +115,50 @@ describe('pflock', function () {
         });
     });
 
-    describe('x-each', function () {
-        var data,
-            el,
-            bindings;
+    describe('nested pflock', function () {
 
-        beforeEach(function () {
-            data = {
-                users: [
-                    {name: 'example 1'},
-                    {name: 'example 2'}
-                ]
-            };
-            el = $('.document:first').clone(false);
-            el.appendTo('body');
-            bindings = pflock(el.get(0), data, {updateData: false});
-        });
+        it('should not affect other nested instances', function () {
 
-        function checkData() {
+            var outerEl = document.getElementById('outer-pflock'),
+                innerEl = document.getElementById('inner-pflock'),
 
-            it('should create the right amount child nodes', function () {
-                el.find('.each-users li').length.should.equal(data.users.length);
-            });
+                outerData = {
+                    title: 'outer'
+                },
+                innerData = {
+                    title: 'inner'
+                },
+                outerBindings = pflock(outerEl, outerData),
+                innerBindings = pflock(innerEl, innerData),
+                outerTitle = document.getElementById('outer-title'),
+                innerTitle = document.getElementById('inner-title');
 
-            it('should write the correct data', function () {
-                el.find('.each-users li').each(function (index) {
-                    $(this).text().should.equal(data.users[index].name);
-                });
-            });
-        }
+            outerTitle.value.should.equal('outer');
+            innerTitle.value.should.equal('inner');
 
-        describe('without adding/removing', function () {
-            checkData();
-        });
+            outerTitle.value = 'changed-outer';
+            triggerEvent(outerTitle, 'input');
+            outerData.title.should.equal('changed-outer');
+            innerTitle.value.should.equal('inner');
 
-        describe('when removing items', function () {
-            beforeEach(function () {
-                data.users.pop();
-                bindings.toDocument();
+            outerData.title = 'outer-changed-again';
+            outerBindings.toDocument();
 
-                data.users.shift();
-                bindings.toDocument();
-            });
-            checkData();
-            it('should have 0 items', function () {
-                data.users.length.should.equal(0);
-            });
-        });
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('inner');
 
-        describe('when adding items', function () {
-            beforeEach(function () {
-                data.users.push({name: 'example 3'});
-                bindings.toDocument();
 
-                data.users.unshift({name: 'example 4'});
-                bindings.toDocument();
-            });
-            checkData();
-            it('should have 4 items', function () {
-                data.users.length.should.equal(4);
-            });
-        });
+            innerTitle.value = 'changed-inner';
+            triggerEvent(innerTitle, 'input');
+            innerData.title.should.equal('changed-inner');
 
-        describe('when removing items to zero and adding again', function () {
-            beforeEach(function () {
-                data.users.pop();
-                data.users.shift();
-                bindings.toDocument();
-                data.users.unshift({name: 'example 5'});
-                bindings.toDocument();
-            });
-            checkData();
-            it('should have 1 item', function () {
-                data.users.length.should.equal(1);
-            });
-        });
-    });
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('changed-inner');
 
-    describe('invalid x-each', function () {
-        var data,
-            el;
-
-        beforeEach(function () {
-            data = {
-                users: [
-                    {name: 'example 1'},
-                    {name: 'example 2'}
-                ]
-            };
-            el = $('.invalid-each:first').clone(false);
-            el.appendTo('body');
-
-        });
-
-        it('should throw an exception when no template node is avaiable', function () {
-            chai.expect(function () {
-                pflock(el.get(0), data, {updateData: false});
-            }).to.throw(/x-each needs a template node/);
-        });
-    });
-
-    describe('nested x-each', function () {
-        var data,
-            el,
-            bindings;
-
-        beforeEach(function () {
-            data = {
-                users: [
-                    {name: 'Edwin', pets: ['Dog', 'Cat']},
-                    {name: 'Bla',   pets: ['Bird', 'Rabbit']}
-                ]
-            };
-            el = $('.nested-each:first').clone(false);
-            $('body').append(el);
-        });
-
-        it('should render correct data and structure', function () {
-            bindings = pflock(el.get(0), data, {updateData: false});
-            $(el).find('ul.outer > li').each(function (outerIndex) {
-                var outerEl = $(this);
-                outerEl.find('ul.inner > li').each(function (innerIndex) {
-                    $(this).text().should.equal(data.users[outerIndex].pets[innerIndex]);
-                });
-            });
+            innerData.title = 'inner-changed-again';
+            innerBindings.toDocument();
+            outerTitle.value.should.equal('outer-changed-again');
+            innerTitle.value.should.equal('inner-changed-again');
         });
     });
 });

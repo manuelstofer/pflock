@@ -24,13 +24,28 @@
     <ul class="each-users" x-each="users"></ul>
 </div>
 
+<div class="x-each-indexes">
+    <ul x-each="numbers">
+        <li x-bind="x-id:numbers.x"></li>
+    </ul>
+</div>
+
+
+<div id="each-dom-changes">
+    <ul x-each="list" id="each-dom-changes-list">
+        <li x-bind="list.x"></li>
+    </ul>
+</div>
+
 <div class="nested-each">
     <ul class="outer" x-each="users">
         <li>
             <span x-bind="users.x.name"></span>
-            <ul class="inner" x-each="users.x.pets">
-                <li x-bind="users.x.pets.x"></li>
-            </ul>
+            <div class="inner">
+                <ul x-each="users.x.pets">
+                    <li x-bind="users.x.pets.x"></li>
+                </ul>
+            </div>
         </li>
     </ul>
 </div>
@@ -63,11 +78,23 @@
             <dt>user.selected</dt><dd class="user-selected" x-bind="user.selected"></dd>
             <dt>user.text</dt><dd class="user-text" x-bind="user.text"></dd>
             <dt>user.editable</dt><dd class="user-editable" x-bind="user.editable"></dd>
+            <dt>user.date</dt><dd class="user-date" x-bind="user.date"></dd>
         </dl>
     </div>
 
 
 </div>
+
+
+<div id="nested">
+    <div id="outer-pflock">
+        <input type="text" id="outer-title" x-bind="value:title"/>
+        <div id="inner-pflock">
+            <input type="text" id="inner-title" x-bind="value:title"/>
+        </div>
+    </div>
+</div>
+
 <div id="mocha"></div>
 <script src="jquery.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
@@ -80,6 +107,7 @@
 </script>
 <script src="../build/build.js"></script>
 <script src="test.js"></script>
+<script src="x-each.js"></script>
 <script>
     window.addEventListener('load', function () {
         if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
