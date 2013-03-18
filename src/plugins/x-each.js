@@ -48,7 +48,7 @@ module.exports = function (instance) {
 
         if (hasChanged) {
             prepareChildNodes(eachNode, path);
-            instance.emit('document-change', path, result);
+            instance.emit('add-change', path, result);
         }
     }
 
