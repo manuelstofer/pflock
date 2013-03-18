@@ -10,7 +10,6 @@ var each    = require('each'),
 exports = module.exports = pflock;
 
 var defaults = {
-    updateData: true,
     events: [
         'checked',
         'selected',
@@ -40,12 +39,14 @@ function pflock (element, data, options) {
     options = extend({}, defaults, options);
 
     var instance = emitter({
-        element:        element,
-        data:           data,
-        toDocument:     toDocument,
-        fromDocument:   fromDocument,
-        options:        options
-    });
+            element:        element,
+            data:           data,
+            toDocument:     toDocument,
+            fromDocument:   fromDocument,
+            options:        options
+        }),
+
+        dirty = false;
 
 
     each(options.plugins, function (plugin) {
@@ -59,7 +60,9 @@ function pflock (element, data, options) {
 
     instance.emit('init');
     instance.emit('write');
-    instance.on('document-change', toData);
+
+    instance.on('add-change',   addChange);
+    instance.on('send-changes', sendChanges);
 
     return instance;
 
@@ -73,6 +76,7 @@ function pflock (element, data, options) {
             instance.data = replace;
         }
         instance.emit('write');
+        sendChanges();
     }
 
     /**
@@ -82,6 +86,7 @@ function pflock (element, data, options) {
      */
     function fromDocument () {
         instance.emit('read');
+        sendChanges();
         return instance.data;
     }
 
@@ -91,10 +96,22 @@ function pflock (element, data, options) {
      * @param path
      * @param value
      */
-    function toData (path, value) {
-        if (instance.options.updateData) {
+    function addChange (path, value) {
+        var oldValue = resolvr.get(instance.data, path);
+        if (oldValue !== value) {
             resolvr.set(instance.data, path, value);
+            dirty = true;
         }
-        instance.emit('changed', path, value);
+    }
+
+    /**
+     * Emits changed event if data is dirty
+     *
+     */
+    function sendChanges () {
+        if (dirty) {
+            instance.emit('changed');
+            dirty = false;
+        }
     }
 }

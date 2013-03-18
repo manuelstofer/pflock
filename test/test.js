@@ -76,10 +76,21 @@ describe('pflock', function () {
             var userName = el.find('.input-user-name');
             userName.val('different');
             bindings.on('changed', function (path, value) {
-                path.should.equal('user.name');
-                value.should.equal('different');
                 done();
             });
+            triggerEvent(userName.get(0), 'input');
+        });
+
+        it('should not emit changed event when nothing changed', function (done) {
+            var userName = el.find('.input-user-name');
+
+            // @todo: find better way to check an event is not emitted
+            bindings.on('changed', function () {
+                true.should.equal(false);
+                done();
+            });
+            setTimeout(done, 200);
+
             triggerEvent(userName.get(0), 'input');
         });
 
@@ -95,23 +106,6 @@ describe('pflock', function () {
             userNameInput.val('changed again');
             triggerEvent(userNameInput.get(0), 'input');
             bindings.fromDocument().user.name.should.equal('changed again');
-        });
-    });
-
-    describe('with option updateData: false', function () {
-
-        beforeEach(function () {
-            el = $('.document:first').clone();
-            el.appendTo('body');
-            bindings = pflock(el.get(0), data, {updateData: false});
-
-        });
-
-        it('should not update the data when the document changes', function () {
-            var userName = el.find('.input-user-name');
-            userName.val('not the same');
-            triggerEvent(userName.get(0), 'input');
-            data.user.name.should.not.equal('not the same');
         });
     });
 

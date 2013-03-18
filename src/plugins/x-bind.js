@@ -45,7 +45,9 @@ module.exports = function (instance) {
             value   = readElement(target, binding.attribute);
 
         writeToDocument(value, binding.path, binding.element);
-        instance.emit('document-change', binding.path, value);
+        instance.emit('add-change', binding.path, value);
+        instance.emit('send-changes');
+
         event.stopPropagation();
     }
 
@@ -53,7 +55,7 @@ module.exports = function (instance) {
         each($('[x-bind]'), function (el) {
             var binding = util.parseXBind(el),
                 value   = readElement(el, binding.attribute);
-            instance.emit('document-change', binding.path, value);
+            instance.emit('add-change', binding.path, value);
         });
     }
 
