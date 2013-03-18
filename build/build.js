@@ -558,7 +558,6 @@ var each    = require('each'),
 exports = module.exports = pflock;
 
 var defaults = {
-    updateData: true,
     events: [
         'checked',
         'selected',
@@ -588,12 +587,14 @@ function pflock (element, data, options) {
     options = extend({}, defaults, options);
 
     var instance = emitter({
-        element:        element,
-        data:           data,
-        toDocument:     toDocument,
-        fromDocument:   fromDocument,
-        options:        options
-    });
+            element:        element,
+            data:           data,
+            toDocument:     toDocument,
+            fromDocument:   fromDocument,
+            options:        options
+        }),
+
+        dirty = false;
 
 
     each(options.plugins, function (plugin) {
@@ -607,7 +608,9 @@ function pflock (element, data, options) {
 
     instance.emit('init');
     instance.emit('write');
-    instance.on('document-change', toData);
+
+    instance.on('add-change',   addChange);
+    instance.on('send-changes', sendChanges);
 
     return instance;
 
@@ -621,6 +624,7 @@ function pflock (element, data, options) {
             instance.data = replace;
         }
         instance.emit('write');
+        sendChanges();
     }
 
     /**
@@ -630,6 +634,7 @@ function pflock (element, data, options) {
      */
     function fromDocument () {
         instance.emit('read');
+        sendChanges();
         return instance.data;
     }
 
@@ -639,11 +644,23 @@ function pflock (element, data, options) {
      * @param path
      * @param value
      */
-    function toData (path, value) {
-        if (instance.options.updateData) {
+    function addChange (path, value) {
+        var oldValue = resolvr.get(instance.data, path);
+        if (oldValue !== value) {
             resolvr.set(instance.data, path, value);
+            dirty = true;
         }
-        instance.emit('changed', path, value);
+    }
+
+    /**
+     * Emits changed event if data is dirty
+     *
+     */
+    function sendChanges () {
+        if (dirty) {
+            instance.emit('changed');
+            dirty = false;
+        }
     }
 }
 
@@ -832,7 +849,7 @@ module.exports = function (instance) {
 
         if (hasChanged) {
             prepareChildNodes(eachNode, path);
-            instance.emit('document-change', path, result);
+            instance.emit('add-change', path, result);
         }
     }
 
@@ -1036,7 +1053,9 @@ module.exports = function (instance) {
             value   = readElement(target, binding.attribute);
 
         writeToDocument(value, binding.path, binding.element);
-        instance.emit('document-change', binding.path, value);
+        instance.emit('add-change', binding.path, value);
+        instance.emit('send-changes');
+
         event.stopPropagation();
     }
 
@@ -1044,7 +1063,7 @@ module.exports = function (instance) {
         each($('[x-bind]'), function (el) {
             var binding = util.parseXBind(el),
                 value   = readElement(el, binding.attribute);
-            instance.emit('document-change', binding.path, value);
+            instance.emit('add-change', binding.path, value);
         });
     }
 

@@ -60,10 +60,10 @@
         });
 
     function writeJSON () {
-        dataElement.value = JSON.stringify(bindings.fromDocument());
+        dataElement.value = JSON.stringify(bindings.data);
     }
 
-    bindings.on('changed', function (path, value) {
+    bindings.on('changed', function () {
         writeJSON();
     });
 
