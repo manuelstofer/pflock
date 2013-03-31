@@ -1,4 +1,4 @@
-var each = require('each'),
+var each = require('foreach'),
     attr = require('attr'),
     event = require('event'),
     util = require('../util');

@@ -1,6 +1,6 @@
 'use strict';
 var attr    = require('attr'),
-    each    = require('each'),
+    each    = require('foreach'),
     util    = require('../util'),
     resolvr = require('resolvr'),
     resolve = resolvr.resolve;

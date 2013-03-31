@@ -1,6 +1,6 @@
 /*global module*/
 
-var each    = require('each'),
+var each    = require('foreach'),
     event   = require('event'),
     attr    = require('attr'),
     emitter = require('emitter'),

@@ -6,7 +6,7 @@
   "dependencies": {
     "matthewp/attr": "*",
     "component/emitter": "*",
-    "manuelstofer/each": "*",
+    "manuelstofer/foreach": "*",
     "manuelstofer/extend": "*",
     "manuelstofer/resolvr": "*",
     "component/event": "*"
