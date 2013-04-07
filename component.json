@@ -1,7 +1,7 @@
 {
   "name": "pflock",
   "description": "Two way data binding",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "keywords": [],
   "dependencies": {
     "matthewp/attr": "*",
