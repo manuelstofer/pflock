@@ -21,25 +21,26 @@ $ component install manuelstofer/pflock
 
 ## Binding Syntax
 
-Bindings are done using x-bind attribute.
+Bindings are done using x-bind attribute. It uses [json pointers](http://tools.ietf.org/html/rfc6901) to
+describe the path in an object.
 
 
 ### Bind value
 
 ```HTML
-<input type="text" x-bind="value:user.name" />
+<input type="text" x-bind="value:/user/name" />
 ```
 
 ### Bind inner HTML
 
 ```HTML
-<p contenteditable x-bind="user.description"></p>
+<p contenteditable x-bind="/user/description"></p>
 ```
 
 ### Bind attribute
 
 ```HTML
-<img src="image.jpg" x-bind="src:user.image"/>
+<img src="image.jpg" x-bind="src:/user/image"/>
 
 ```
 
@@ -59,12 +60,12 @@ var data = {
 When using the x-each Pflock will use the the child node as a template and clone it for every item.
 
 ```Html
-<ul x-each="users">
-  <li><span x-bind="users.x.name"></span> [<span  x-bind="users.x.age"></span>]</li>
+<ul x-each="/users">
+  <li><span x-bind="/users/x/name"></span> [<span  x-bind="/users/x/age"></span>]</li>
 </ul>
 
-<ul x-each="users">
-  <li x-bind="users.x.name"></li>
+<ul x-each="/users">
+  <li x-bind="/users/x/name"></li>
 </ul>
 ```
 
@@ -81,7 +82,7 @@ var data = {
 };
 
 var bindings = pflock(document.body, data);
-bindings.on('change',  function (path, value) {
+bindings.on('change',  function (pointer, value) {
 
 });
 ```
@@ -95,4 +96,4 @@ Pflock has no built in template engine. Any engine will work just fine.
 
 [Richard Parker](http://github.com/manuelstofer/richardparker) was built
 to be used together with Pflock. It makes it easy to create the bindings by
-keeping track over the binding path when you iterate over objects or arrays.
+keeping track over the binding pointer when you iterate over objects or arrays.
