@@ -7,7 +7,7 @@
 
 <body>
     <div id="title">
-        <h1><a href="http://github.com/manuelstofer/pflock" x-bind="user.name">Pflock</a></h1>
+        <h1><a href="http://github.com/manuelstofer/pflock" x-bind="/user/name">Pflock</a></h1>
         <h2>Two way bindings.</h2>
     </div>
 
@@ -15,20 +15,20 @@
 <div id="try">
 
     <div id="pflock">
-        <p x-bind="user.description" contenteditable></p>
-        <input type="text" x-bind="value:user.name" placeholder="Username">
+        <p x-bind="/user/description" contenteditable></p>
+        <input type="text" x-bind="value:/user/name" placeholder="Username">
 
-        <select type="text" x-bind="value:user.selected">
+        <select type="text" x-bind="value:/user/selected">
             <option value="0">0</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
         </select>
 
-        <input type="checkbox" x-bind="value:user.checked">
+        <input type="checkbox" x-bind="value:/user/checked">
 
-        <ul x-each="user.list">
-            <li x-bind="user.list.x" contenteditable></li>
+        <ul x-each="/user/list">
+            <li x-bind="user/list/x" contenteditable></li>
         </ul>
 
     </div>
