@@ -6,7 +6,6 @@ module.exports = {
     getEventTarget:     getEventTarget,
     getQueryEngine:     getQueryEngine,
     isIterable:         isIterable,
-    toPathValueHash:    toPathValueHash,
     parseXBind:         parseXBind
 };
 
@@ -83,36 +82,6 @@ function isIterable (obj) {
 }
 
 /**
- * Converts the object data to a hash with path and value
- *
- * Example:
- *  toPathValue({user: 'test', foo: {bla: 'word'}})
- * Returns:
- *  {
- *      'user': 'test',
- *      'foo.bla': 'word'
- *  }
- *
- * @param data
- * @return {Object}
- */
-function toPathValueHash (data) {
-    var result = {};
-    function convert (obj, path) {
-        each(obj, function (item, key) {
-            var itemPath = (path ? path + '.' : '') + key;
-            if (isIterable(item)) {
-                convert(item, itemPath);
-            } else {
-                result[itemPath] = item;
-            }
-        });
-    }
-    convert(data);
-    return result;
-}
-
-/**
  * Gets the element binding definition
  *
  * @param el
@@ -122,10 +91,10 @@ function parseXBind(el) {
     var bindValue   = attr(el).get('x-bind'),
         bindParts   = bindValue.split(/:/),
         attribute   = bindParts.length > 1 ? bindParts.shift(): '',
-        path        = bindParts.shift();
+        pointer     = bindParts.shift();
     return {
         attribute:  attribute,
-        path:       path,
+        pointer:    pointer,
         element:    el
     };
 }

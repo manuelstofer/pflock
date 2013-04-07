@@ -75,7 +75,7 @@ describe('pflock', function () {
         it('should emit an event when values change', function (done) {
             var userName = el.find('.input-user-name');
             userName.val('different');
-            bindings.on('changed', function (path, value) {
+            bindings.on('changed', function () {
                 done();
             });
             triggerEvent(userName.get(0), 'input');

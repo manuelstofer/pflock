@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title> Tests </title>
+    <title>Tests</title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
     <style>
@@ -21,29 +21,29 @@
 <body>
 
 <div class="invalid-each">
-    <ul class="each-users" x-each="users"></ul>
+    <ul class="each-users" x-each="/users"></ul>
 </div>
 
 <div class="x-each-indexes">
-    <ul x-each="numbers">
-        <li x-bind="x-id:numbers.x"></li>
+    <ul x-each="/numbers">
+        <li x-bind="x-id:/numbers/x"></li>
     </ul>
 </div>
 
 
 <div id="each-dom-changes">
-    <ul x-each="list" id="each-dom-changes-list">
-        <li x-bind="list.x"></li>
+    <ul x-each="/list" id="each-dom-changes-list">
+        <li x-bind="/list/x"></li>
     </ul>
 </div>
 
 <div class="nested-each">
-    <ul class="outer" x-each="users">
+    <ul class="outer" x-each="/users">
         <li>
-            <span x-bind="users.x.name"></span>
+            <span x-bind="/users/x/name"></span>
             <div class="inner">
-                <ul x-each="users.x.pets">
-                    <li x-bind="users.x.pets.x"></li>
+                <ul x-each="/users/x/pets">
+                    <li x-bind="/users/x/pets/x"></li>
                 </ul>
             </div>
         </li>
@@ -55,30 +55,30 @@
     <div class="inputs">
 
         <span id="unbound"></span>
-        <h1 x-bind="user.name" contenteditable></h1>
-        <input class="input-user-name" type="text" x-bind="value:user.name" value="Manuel">
-        <input class="input-user-checked" type="checkbox" value="checked-value" checked x-bind="value:user.checked">
-        <select class="input-user-selected" x-bind="value:user.selected">
+        <h1 x-bind="/user/name" contenteditable></h1>
+        <input class="input-user-name" type="text" x-bind="value:/user/name" value="Manuel">
+        <input class="input-user-checked" type="checkbox" value="checked-value" checked x-bind="value:/user/checked">
+        <select class="input-user-selected" x-bind="value:/user/selected">
             <option value="1">Option 1</option>
             <option value="2">Option 2</option>
         </select>
-        <textarea class="input-user-text" x-bind="value:user.text"></textarea>
-        <p class="input-user-editable" x-bind="user.editable" contenteditable></p>
+        <textarea class="input-user-text" x-bind="value:/user/text"></textarea>
+        <p class="input-user-editable" x-bind="/user/editable" contenteditable></p>
 
-        <ul class="each-users" x-each="users">
-            <li x-bind="users.x.name"></li>
+        <ul class="each-users" x-each="/users">
+            <li x-bind="/users/x/name"></li>
         </ul>
     </div>
 
 
     <div class="status">
         <dl>
-            <dt>user.name</dt><dd class="user-name" x-bind="user.name"></dd>
-            <dt>user.checked</dt><dd class="user-checked" x-bind="user.checked"></dd>
-            <dt>user.selected</dt><dd class="user-selected" x-bind="user.selected"></dd>
-            <dt>user.text</dt><dd class="user-text" x-bind="user.text"></dd>
-            <dt>user.editable</dt><dd class="user-editable" x-bind="user.editable"></dd>
-            <dt>user.date</dt><dd class="user-date" x-bind="user.date"></dd>
+            <dt>/user/name</dt><dd class="user-name" x-bind="/user/name"></dd>
+            <dt>/user/checked</dt><dd class="user-checked" x-bind="/user/checked"></dd>
+            <dt>/user/selected</dt><dd class="user-selected" x-bind="/user/selected"></dd>
+            <dt>/user/text</dt><dd class="user-text" x-bind="/user/text"></dd>
+            <dt>/user/editable</dt><dd class="user-editable" x-bind="/user/editable"></dd>
+            <dt>/user/date</dt><dd class="user-date" x-bind="/user/date"></dd>
         </dl>
     </div>
 
@@ -88,9 +88,9 @@
 
 <div id="nested">
     <div id="outer-pflock">
-        <input type="text" id="outer-title" x-bind="value:title"/>
+        <input type="text" id="outer-title" x-bind="value:/title"/>
         <div id="inner-pflock">
-            <input type="text" id="inner-title" x-bind="value:title"/>
+            <input type="text" id="inner-title" x-bind="value:/title"/>
         </div>
     </div>
 </div>

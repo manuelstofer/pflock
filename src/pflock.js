@@ -1,11 +1,11 @@
 /*global module*/
 
-var each    = require('foreach'),
-    event   = require('event'),
-    attr    = require('attr'),
-    emitter = require('emitter'),
-    extend  = require('extend'),
-    resolvr = require('resolvr');
+var each        = require('foreach'),
+    event       = require('event'),
+    attr        = require('attr'),
+    emitter     = require('emitter'),
+    extend      = require('extend'),
+    jsonpointer = require('json-pointer');
 
 exports = module.exports = pflock;
 
@@ -93,13 +93,16 @@ function pflock (element, data, options) {
     /**
      * Writes a value back to the data object
      *
-     * @param path
+     * @param pointer
      * @param value
      */
-    function addChange (path, value) {
-        var oldValue = resolvr.get(instance.data, path);
+    function addChange (pointer, value) {
+        var oldValue;
+        if (jsonpointer.has(instance.data, pointer)) {
+            oldValue = jsonpointer.get(instance.data, pointer);
+        }
         if (oldValue !== value) {
-            resolvr.set(instance.data, path, value);
+            jsonpointer.set(instance.data, pointer, value);
             dirty = true;
         }
     }

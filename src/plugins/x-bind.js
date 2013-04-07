@@ -1,7 +1,8 @@
 var each = require('foreach'),
     attr = require('attr'),
     event = require('event'),
-    util = require('../util');
+    util = require('../util'),
+    jsonpointer = require('json-pointer');
 
 /**
  * Pflock plugin: provides x-bind syntax
@@ -15,7 +16,9 @@ module.exports = function (instance) {
 
     instance.on('init', setupEvents);
     instance.on('write', function () {
-        each(util.toPathValueHash(instance.data), writeToDocument);
+        jsonpointer.walk(instance.data, function (value, pointer) {
+            writeToDocument(value, pointer);
+        });
     });
 
     instance.on('read', readFromDocument);
@@ -44,8 +47,8 @@ module.exports = function (instance) {
             binding = util.parseXBind(target),
             value   = readElement(target, binding.attribute);
 
-        writeToDocument(value, binding.path, binding.element);
-        instance.emit('add-change', binding.path, value);
+        writeToDocument(value, binding.pointer, binding.element);
+        instance.emit('add-change', binding.pointer, value);
         instance.emit('send-changes');
 
         event.stopPropagation();
@@ -55,7 +58,7 @@ module.exports = function (instance) {
         each($('[x-bind]'), function (el) {
             var binding = util.parseXBind(el),
                 value   = readElement(el, binding.attribute);
-            instance.emit('add-change', binding.path, value);
+            instance.emit('add-change', binding.pointer, value);
         });
     }
 
@@ -80,17 +83,17 @@ module.exports = function (instance) {
     }
 
     /**
-     * Writes a value to all elements bound to path
+     * Writes a value to all elements bound to pointer
      *
      * @param value
-     * @param path
+     * @param pointer
      * @param src
      */
-    function writeToDocument (value, path, src) {
+    function writeToDocument (value, pointer, src) {
         each($('[x-bind]'), function (el) {
             if (el !== src) {
                 var currentBinding = util.parseXBind(el);
-                if (path === currentBinding.path) {
+                if (pointer === currentBinding.pointer) {
                     writeToElement(el, value);
                 }
             }

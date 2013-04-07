@@ -1,6 +1,6 @@
 {
   "name": "pflock",
-  "description": "Two way binding",
+  "description": "Two way data binding",
   "version": "0.5.2",
   "keywords": [],
   "dependencies": {
@@ -8,7 +8,7 @@
     "component/emitter": "*",
     "manuelstofer/foreach": "*",
     "manuelstofer/extend": "*",
-    "manuelstofer/resolvr": "*",
+    "manuelstofer/json-pointer": "*",
     "component/event": "*"
   },
   "development": {},

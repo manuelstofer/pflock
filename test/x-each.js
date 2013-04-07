@@ -17,7 +17,7 @@ describe('x-each', function () {
         };
         el = $('.document:first').clone(false);
         el.appendTo('body');
-        bindings = pflock(el.get(0), data, {updateData: false});
+        bindings = pflock(el.get(0), data);
     });
 
     function checkData() {
@@ -96,7 +96,7 @@ describe('x-each', function () {
 
         it('should throw an exception when no template node is avaiable', function () {
             chai.expect(function () {
-                pflock(el.get(0), data, {updateData: false});
+                pflock(el.get(0), data);
             }).to.throw(/x-each needs a template node/);
         });
     });
@@ -137,7 +137,7 @@ describe('x-each', function () {
         });
 
         it('should render correct data and structure', function () {
-            bindings = pflock(el.get(0), data, {updateData: false});
+            bindings = pflock(el.get(0), data);
             $(el).find('ul.outer > li').each(function (outerIndex) {
                 var outerEl = $(this);
                 outerEl.find('ul.inner > li').each(function (innerIndex) {
