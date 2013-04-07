@@ -81,7 +81,7 @@ var data = {
 };
 
 var bindings = pflock(document.body, data);
-bindings.on('change',  function (path, value) {
+bindings.on('change',  function (pointer, value) {
 
 });
 ```
@@ -95,4 +95,4 @@ Pflock has no built in template engine. Any engine will work just fine.
 
 [Richard Parker](http://github.com/manuelstofer/richardparker) was built
 to be used together with Pflock. It makes it easy to create the bindings by
-keeping track over the binding path when you iterate over objects or arrays.
+keeping track over the binding pointer when you iterate over objects or arrays.
