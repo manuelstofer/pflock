@@ -19,6 +19,7 @@ module.exports = function (instance) {
 
     function readEachNodes () {
         each($('[x-each]').sort(cmpNestingLevel), readEachNode);
+        instance.emit('send-changes');
     }
 
     function prepareEachNodes () {
