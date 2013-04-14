@@ -79,6 +79,9 @@ module.exports = function (instance) {
         if (attribute === '') {
             return el.innerHTML;
         }
+        if (!attr(el).has(attribute)) {
+            return null;
+        }
         return attr(el).get(attribute);
     }
 
