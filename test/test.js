@@ -72,10 +72,22 @@ describe('pflock', function () {
             documentEqualsData();
         });
 
-        it('should emit an event when values change', function (done) {
+        it('should emit path-changed event', function (done) {
+            var userName = el.find('.input-user-name');
+            userName.val('changed');
+            bindings.on('path-changed', function (path, value) {
+                path.should.equal('/user/name');
+                value.should.equal('changed');
+                done();
+            });
+            triggerEvent(userName.get(0), 'input');
+        });
+
+        it('should emit `changed` event when values change', function (done) {
             var userName = el.find('.input-user-name');
             userName.val('different');
-            bindings.on('changed', function () {
+            bindings.on('changed', function (data) {
+                data.should.equal(bindings.data);
                 done();
             });
             triggerEvent(userName.get(0), 'input');

@@ -82,7 +82,12 @@ var data = {
 };
 
 var bindings = pflock(document.body, data);
-bindings.on('change',  function (pointer, value) {
+
+bindings.on('path-changed',  function (path, value) {
+
+});
+
+bindings.on('changed',  function (data) {
 
 });
 ```

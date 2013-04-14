@@ -60,7 +60,7 @@ function pflock (element, data, options) {
     instance.emit('init');
     instance.emit('write');
 
-    instance.on('add-change',   addChange);
+    instance.on('path-changed',   addChange);
     instance.on('send-changes', sendChanges);
 
     return instance;
@@ -112,7 +112,7 @@ function pflock (element, data, options) {
      */
     function sendChanges () {
         if (dirty) {
-            instance.emit('changed');
+            instance.emit('changed', instance.data);
             dirty = false;
         }
     }

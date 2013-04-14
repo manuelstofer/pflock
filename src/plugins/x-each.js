@@ -53,7 +53,7 @@ module.exports = function (instance) {
 
         if (hasChanged) {
             prepareChildNodes(eachNode, pointer);
-            instance.emit('add-change', pointer, result);
+            instance.emit('path-changed', pointer, result);
         }
     }
 
