@@ -2,7 +2,6 @@
 
 var each        = require('foreach'),
     event       = require('event'),
-    attr        = require('attr'),
     emitter     = require('emitter'),
     extend      = require('extend'),
     jsonpointer = require('json-pointer');
