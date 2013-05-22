@@ -61,11 +61,14 @@ When using the x-each Pflock will use the the child node as a template and clone
 
 ```Html
 <ul x-each="/users">
-  <li><span x-bind="/users/x/name"></span> [<span  x-bind="/users/x/age"></span>]</li>
+    <li>
+        <span x-bind="/users/x/name"></span> 
+        [<span  x-bind="/users/x/age"></span>]
+    </li>
 </ul>
 
 <ul x-each="/users">
-  <li x-bind="/users/x/name"></li>
+    <li x-bind="/users/x/name"></li>
 </ul>
 ```
 
