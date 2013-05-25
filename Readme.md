@@ -21,7 +21,7 @@ $ component install manuelstofer/pflock
 
 ## Binding Syntax
 
-Bindings are done using x-bind attribute. It uses [json pointers](http://tools.ietf.org/html/rfc6901) to
+Bindings are done using x-bind attribute. It uses [JSON pointers](http://tools.ietf.org/html/rfc6901) to
 describe the path in an object.
 
 
