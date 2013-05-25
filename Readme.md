@@ -57,7 +57,7 @@ var data = {
 };
 ```
 
-When using the x-each Pflock will use the the child node as a template and clone it for every item.
+When using the x-each Pflock will use the child node as a template and clone it for every item.
 
 ```Html
 <ul x-each="/users">
