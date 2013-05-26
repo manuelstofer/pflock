@@ -21,7 +21,7 @@ $ component install manuelstofer/pflock
 
 ## Binding Syntax
 
-Bindings are done using x-bind attribute. It uses [json pointers](http://tools.ietf.org/html/rfc6901) to
+Bindings are done using x-bind attribute. It uses [JSON pointers](http://tools.ietf.org/html/rfc6901) to
 describe the path in an object.
 
 
@@ -57,15 +57,18 @@ var data = {
 };
 ```
 
-When using the x-each Pflock will use the the child node as a template and clone it for every item.
+When using the x-each Pflock will use the child node as a template and clone it for every item.
 
 ```Html
 <ul x-each="/users">
-  <li><span x-bind="/users/x/name"></span> [<span  x-bind="/users/x/age"></span>]</li>
+    <li>
+        <span x-bind="/users/x/name"></span> 
+        [<span  x-bind="/users/x/age"></span>]
+    </li>
 </ul>
 
 <ul x-each="/users">
-  <li x-bind="/users/x/name"></li>
+    <li x-bind="/users/x/name"></li>
 </ul>
 ```
 
