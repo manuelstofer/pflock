@@ -3,7 +3,7 @@
     "version": "0.6.1",
     "author": "Manuel Stofer <manuel@takimata.ch>",
     "devDependencies": {
-        "mocha": "*",
+        "mocha": "1.9.0",
         "chai": "*",
         "component": "*",
         "mocha-phantomjs": "*"
