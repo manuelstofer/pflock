@@ -57,7 +57,7 @@ var data = {
 };
 ```
 
-When using the x-each Pflock will use the child node as a template and clone it for every item.
+When using the x-each, Pflock will use the child node as a template and clone it for every item.
 
 ```Html
 <ul x-each="/users">
@@ -96,7 +96,7 @@ bindings.on('changed',  function (data) {
 ```
 
 ### Backbone models
-There is an Adapter to use Pflock with Backbone models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
+There is an adapter to use Pflock with Backbone.js models: [Backbone-Pflock](http://github.com/manuelstofer/backbone-pflock)
 
 
 ## Templating
